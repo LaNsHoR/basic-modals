@@ -1,0 +1,29 @@
+<html>
+    <head>
+    </head>
+    <body>        
+        <script src="modals.js"></script>
+        <button id='name'>Question your name</button>
+        <button onclick="BasicModals.prompt('No actions')">Prompt with no actions</button>
+        <button onclick="BasicModals.alert('Hello World')">Alert Default</button>
+        <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert Custom</button>
+        <button id='cool'>Confirm Cool</button>
+        <div id='results'></div>
+        <script>
+            document.getElementById('name').onclick = () => {
+                BasicModals.prompt( { question: 'Introduce your name'} )
+                    .then( name => results.innerHTML += `Your name is ${name}<br>\n`)
+                    .catch( error => results.innerHTML += 'The user closed the prompt<br>\n')
+            }
+
+            document.getElementById('cool').onclick = () => {
+                BasicModals.confirm('Is this cool?').then( cool => {
+                    if( cool )
+                        results.innerHTML += `You think this is cool!<br>\n`
+                    else
+                        results.innerHTML += `Your don´t think this is cool :(<br>\n`
+                })
+            }
+        </script>
+    </body>
+</html>

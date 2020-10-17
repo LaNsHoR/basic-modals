@@ -1,0 +1,33 @@
+{
+  "name": "basic-modals",
+  "version": "0.0.1",
+  "description": "A basic set of promise based HTML modals (prompt, alert, confirm).",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LaNsHoR/basic-modals.git"
+  },
+  "keywords": [
+    "modals",
+    "prompt",
+    "alert",
+    "confirm"
+  ],
+  "author": "Ernesto Azuar <lanshor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LaNsHoR/basic-modals/issues"
+  },
+  "homepage": "https://github.com/LaNsHoR/basic-modals#readme",
+  "dependencies": {
+    "html-builder": "github:LaNsHoR/html-builder"
+  },
+  "devDependencies": {
+    "webpack": "^5.1.3",
+    "webpack-cli": "^4.0.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
