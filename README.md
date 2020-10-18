@@ -55,7 +55,7 @@ confirm('is this cool?')
 ### Use 2: Customize button texts
 
 ```javascript
-confirm( { question: 'want to receive notifications?', button_yes_content: 'always', button_no_content:'never' } )
+confirm( { question: 'like notifications?', button_yes_content: 'always', button_no_content:'never' } )
     .then( response => { /* ... */ } )
 ```
 
