@@ -119,9 +119,28 @@ This package will add a style tag with the modal's CSS in your head section. The
 Example:
 
 ```css
-    .BasicModalsButtonOk:hover: {
-        background: red
-    }
+.BasicModalsButtonOk:hover: {
+    background: red
+}
 ```
 
 The above will turn the Ok button red when the mouse cursor is over it.
+
+Every modal box is children of a "veil" div with one of the following classes: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm` and `BasicModalsVeilPrompt`. You can use this to customize the style of the different modals separately.
+
+```css
+/* this only will affect the confirm modal */
+.BasicModalsVeilConfirm .BasicModalsButtonOk:hover: {
+    background: red
+}
+```
+
+If you need to increase the specificity of your selectors to override the default ones, just use:
+
+```css
+body .BasicModalsButtonOk:hover: {
+    background: red
+}
+```
+
+or some similar redundant ascendent section starting the selector.
