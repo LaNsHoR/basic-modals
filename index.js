@@ -160,7 +160,7 @@ function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_
 
 exports.prompt = prompt
 exports.alert = alert
-exports.confirm
+exports.confirm = confirm
 
 window.BasicModals = {
     prompt,
