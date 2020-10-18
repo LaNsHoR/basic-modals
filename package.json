@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev": "webpack serve",
-    "test": "jest -collect-coverage"
+    "test": "jest --collect-coverage"
   },
   "repository": {
     "type": "git",

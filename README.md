@@ -96,9 +96,9 @@ prompt("what's your name?")
 ```javascript
 prompt( {
     question: "what's your name?",
-    default_value: 'Eric',
+    value: 'Eric',
     placeholder: 'Your name here',
-    button_ok_content: 'Next',
+    button_accept_content: 'Next',
     button_cancel_content:'Quit',
     })
     .then( response => { /* ... */ } )

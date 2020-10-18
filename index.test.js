@@ -109,16 +109,16 @@ test('render basic prompt', () => {
 
 test('render custom prompt', () => {
     const question = 'write something'
-    const default_value = 'my default'
+    const value = 'my default'
     const placeholder = 'here something'
-    const button_ok_content = 'this is ok'
+    const button_accept_content = 'this is ok'
     const button_cancel_content = 'this is cancel'
-    prompt({question, default_value, placeholder, button_ok_content, button_cancel_content})
+    prompt({question, value, placeholder, button_accept_content, button_cancel_content})
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
-    expect(document.querySelector('.BasicModalsInput').value).toBe(default_value)
+    expect(document.querySelector('.BasicModalsInput').value).toBe(value)
     expect(document.querySelector('.BasicModalsInput').placeholder).toBe(placeholder)
-    expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_ok_content)
+    expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_accept_content)
     expect(document.querySelector('.BasicModalsButtonCancel').innerHTML).toBe(button_cancel_content)
     document.querySelector('.BasicModalsButtonOk').click()
     expect(document.querySelector('.BasicModalsTitle')).toBe(null)
