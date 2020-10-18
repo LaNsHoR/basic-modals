@@ -9,6 +9,20 @@ test('render empty alert', () => {
     expect(document.querySelector('.BasicModalsTitle')).toBe(null)
 })
 
+test('render alert z-index', () => {
+    alert()
+    alert()
+    alert()
+    const veils = document.querySelectorAll('.BasicModalsVeilAlert')
+    expect(veils[0].style.zIndex).toBe("100")
+    expect(veils[1].style.zIndex).toBe("200")
+    expect(veils[2].style.zIndex).toBe("300")
+    document.querySelector('.BasicModalsButtonOk').click()
+    document.querySelector('.BasicModalsButtonOk').click()
+    document.querySelector('.BasicModalsButtonOk').click()
+    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
+})
+
 test('render basic alert', () => {
     const message = 'hello'
     alert(message)
@@ -38,6 +52,20 @@ test('test alert promise', () => {
 test('render empty confirm', () => {
     confirm()
     expect(document.querySelector('.BasicModalsTitle')).toBeTruthy()
+    document.querySelector('.BasicModalsButtonOk').click()
+    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
+})
+
+test('render confirm z-index', () => {
+    confirm()
+    confirm()
+    confirm()
+    const veils = document.querySelectorAll('.BasicModalsVeilConfirm')
+    expect(veils[0].style.zIndex).toBe("100")
+    expect(veils[1].style.zIndex).toBe("200")
+    expect(veils[2].style.zIndex).toBe("300")
+    document.querySelector('.BasicModalsButtonOk').click()
+    document.querySelector('.BasicModalsButtonOk').click()
     document.querySelector('.BasicModalsButtonOk').click()
     expect(document.querySelector('.BasicModalsTitle')).toBe(null)
 })
@@ -95,6 +123,20 @@ test('test confirm promise (answer: no)', () => {
 test('render empty prompt', () => {
     prompt()
     expect(document.querySelector('.BasicModalsTitle')).toBeTruthy()
+    document.querySelector('.BasicModalsButtonOk').click()
+    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
+})
+
+test('render prompt z-index', () => {
+    prompt()
+    prompt()
+    prompt()
+    const veils = document.querySelectorAll('.BasicModalsVeilPrompt')
+    expect(veils[0].style.zIndex).toBe("100")
+    expect(veils[1].style.zIndex).toBe("200")
+    expect(veils[2].style.zIndex).toBe("300")
+    document.querySelector('.BasicModalsButtonOk').click()
+    document.querySelector('.BasicModalsButtonOk').click()
     document.querySelector('.BasicModalsButtonOk').click()
     expect(document.querySelector('.BasicModalsTitle')).toBe(null)
 })

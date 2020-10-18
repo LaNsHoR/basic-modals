@@ -3,6 +3,11 @@ const { style } = require('./style')
 
 builder.CSS( style )
 
+const max_z_index = () => {
+    const z_indexes = [...document.querySelectorAll('body *')].map(element => parseFloat(getComputedStyle(element).zIndex) || 0)
+    return Math.max.apply(null, z_indexes)
+}
+
 function alert({ message = '', button_ok_content = 'Ok' } = {}) {
     message = typeof arguments[0] == 'string' ? arguments[0] : message
 
@@ -13,6 +18,7 @@ function alert({ message = '', button_ok_content = 'Ok' } = {}) {
     const button_ok     = builder.HTML('button', {className: 'BasicModalsButtonOk'}, line, button_ok_content)
 
     veil.style.opacity = 1
+    veil.style.zIndex = max_z_index()+100
 
     return new Promise( resolve => button_ok.onclick = () => { veil.remove(); resolve() })
 }
@@ -28,6 +34,7 @@ function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_
     const button_no  = builder.HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_no_content)
 
     veil.style.opacity = 1
+    veil.style.zIndex = max_z_index()+100
 
     return new Promise( (resolve, reject ) => {
         button_yes.onclick = () => { veil.remove(); resolve(true) }
@@ -47,6 +54,7 @@ function prompt({ question = 'Question', value = '', placeholder = '',  button_a
     const button_cancel = builder.HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)
 
     veil.style.opacity = 1
+    veil.style.zIndex = max_z_index()+100
     response.focus()
 
     return new Promise( (resolve, reject ) => {

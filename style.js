@@ -12,7 +12,7 @@ const style = {
         alignItems: 'center',
         justifyContent: 'center',
         opacity: 0,
-        transition: 'opacity 0.5s'
+        transition: 'opacity 0.5s',
     },
 
     '.BasicModalsBox': {
@@ -23,7 +23,8 @@ const style = {
         fontFamily: 'sans-serif',
         width: '50%',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        maxWidth: '400px'
     },
 
     '.BasicModalsTitle': {
@@ -34,7 +35,6 @@ const style = {
 
     '.BasicModalsInput': {
         display: 'block',
-        width: '100%',
         marginBottom: '15px',
         borderRadius: '2px',
         border: `1px solid ${blue}`,
