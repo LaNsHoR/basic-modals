@@ -13,9 +13,10 @@
         <script src="modals.js"></script>
         <button id='name'>Question your name</button>
         <button onclick="BasicModals.prompt('No actions')">Prompt with no actions</button>
-        <button onclick="BasicModals.alert('Hello World')">Alert Default</button>
-        <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert Custom</button>
-        <button id='cool'>Confirm Cool</button>
+        <button onclick="BasicModals.alert('Hello World')">Alert default</button>
+        <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert custom</button>
+        <button id='cool'>Confirm cool</button>
+        <button id='chain'>(Prompt - Confirm - Alert) chain</button>
         <div id='results'></div>
         <script>
             document.getElementById('name').onclick = () => {
@@ -32,6 +33,15 @@
                         results.innerHTML += `Your don´t think this is cool :(<br>\n`
                 })
             }
+
+            const chain_click = () => {
+                BasicModals.prompt("So, what's your favorite color?")
+                .then( color => BasicModals.confirm(`Are you sure is ${color}?`)
+                    .then( sure => sure ? BasicModals.alert(`Understood, I like ${color} too`) : chain_click() ))
+                .catch( _ => {})
+            }
+
+            document.getElementById('chain').onclick = chain_click
         </script>
     </body>
 </html>
