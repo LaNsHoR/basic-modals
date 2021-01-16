@@ -2,12 +2,20 @@
 
 A small set of promise based HTML modals (alert, confirm, prompt).
 
+# Install
+
+```bash
+npm install @lanshor/basic-modals
+```
+
+# Usage
+
 ## Alert
 
 ### Use 0: Import alert
 
 ```javascript
-const { alert } = require('basic-modals')
+const { alert } = require('@lanshor/basic-modals')
 ```
 
 ### Use 1: Invoke it with a message
@@ -42,7 +50,7 @@ alert( 'Accept this' )
 ### Use 0: Import confirm from the package
 
 ```javascript
-const { confirm } = require('basic-modals')
+const { confirm } = require('@lanshor/basic-modals')
 ```
 
 ### Use 1: Invoke it with a message, then get the response (true or false)
@@ -73,7 +81,7 @@ confirm( { question: 'like notifications?', button_yes_content: 'always', button
 ### Use 0: Import prompt from the package
 
 ```javascript
-const { prompt } = require('basic-modals')
+const { prompt } = require('@lanshor/basic-modals')
 ```
 
 ### Use 1: Invoke it with a message, then get the response (user's input)
