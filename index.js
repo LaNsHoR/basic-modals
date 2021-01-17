@@ -1,4 +1,4 @@
-const builder = require('@lanshor/html-builder')
+const builder = require('html-css-builder')
 const { style } = require('./style')
 
 builder.CSS( style )

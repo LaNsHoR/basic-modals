@@ -1,6 +1,6 @@
 {
   "name": "basic-modals",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A basic set of promise based HTML modals (prompt, alert, confirm).",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/LaNsHoR/basic-modals#readme",
   "dependencies": {
-    "@lanshor/html-builder": "^0.1.3"
+    "html-css-builder": "^0.1.4"
   },
   "devDependencies": {
     "jest": "^26.5.3",
