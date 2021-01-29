@@ -5,6 +5,7 @@ const { document } = global
 test('render empty alert', () => {
     alert()
     expect(document.querySelector('.BasicModalsTitle')).toBeTruthy()
+    expect(document.activeElement).toBe(document.querySelector('.BasicModalsButtonOk'))
     document.querySelector('.BasicModalsButtonOk').click()
     expect(document.querySelector('.BasicModalsTitle')).toBe(null)
 })
@@ -46,6 +47,12 @@ test('test alert promise', () => {
     const promise = alert(message)
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(message)
     promise.then( _ => expect(document.querySelector('.BasicModalsTitle')).toBe(null) )
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
+test('test alert button is focused', () => {
+    alert()
+    expect(document.activeElement).toBe(document.querySelector('.BasicModalsButtonOk'))
     document.querySelector('.BasicModalsButtonOk').click()
 })
 
@@ -120,6 +127,12 @@ test('test confirm promise (answer: no)', () => {
     document.querySelector('.BasicModalsButtonCancel').click()
 })
 
+test('test confirm ok button is focused', () => {
+    confirm()
+    expect(document.activeElement).toBe(document.querySelector('.BasicModalsButtonOk'))
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
 test('render empty prompt', () => {
     prompt()
     expect(document.querySelector('.BasicModalsTitle')).toBeTruthy()
@@ -185,4 +198,17 @@ test('test prompt promise (cancel)', () => {
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
     promise.catch( _ => expect(document.querySelector('.BasicModalsTitle')).toBe(null) )
     document.querySelector('.BasicModalsButtonCancel').click()
+})
+
+test('test prompt input is focused', () => {
+    prompt()
+    expect(document.activeElement).toBe(document.querySelector('.BasicModalsInput'))
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
+test('test prompt press enter closes the prompt', () => {
+    prompt()
+    const event = new KeyboardEvent('keyup', { key: 'Enter' })
+    document.querySelector('.BasicModalsInput').dispatchEvent( event )
+    expect(document.querySelector('.BasicModalsInput')).toBe(null)
 })

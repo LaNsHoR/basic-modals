@@ -17,6 +17,8 @@ function alert({ message = '', button_ok_content = 'Ok' } = {}) {
     const line          = builder.HTML('div',    {className: 'BasicModalsLineAlert'}, container)
     const button_ok     = builder.HTML('button', {className: 'BasicModalsButtonOk'}, line, button_ok_content)
 
+    button_ok.focus()
+
     veil.style.opacity = 1
     veil.style.zIndex = max_z_index()+100
 
@@ -32,6 +34,8 @@ function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_
     const line       = builder.HTML('div',    {className: 'BasicModalsLineConfirm'}, container)
     const button_yes = builder.HTML('button', {className: 'BasicModalsButtonOk'}, line, button_yes_content)
     const button_no  = builder.HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_no_content)
+
+    button_yes.focus()
 
     veil.style.opacity = 1
     veil.style.zIndex = max_z_index()+100
@@ -55,7 +59,9 @@ function prompt({ question = 'Question', value = '', placeholder = '',  button_a
 
     veil.style.opacity = 1
     veil.style.zIndex = max_z_index()+100
+    
     response.focus()
+    response.onkeyup= event => event.key == 'Enter' && button_accept.click()
 
     return new Promise( (resolve, reject ) => {
         button_accept.onclick = () => {
