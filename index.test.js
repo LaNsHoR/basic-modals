@@ -208,7 +208,7 @@ test('test prompt input is focused', () => {
 
 test('test prompt press enter closes the prompt', () => {
     prompt()
-    const event = new KeyboardEvent('keyup', { key: 'Enter' })
+    const event = new KeyboardEvent('keydown', { key: 'Enter' })
     document.querySelector('.BasicModalsInput').dispatchEvent( event )
     expect(document.querySelector('.BasicModalsInput')).toBe(null)
 })
