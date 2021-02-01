@@ -1,6 +1,6 @@
 {
   "name": "basic-modals",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A basic set of promise based HTML modals (prompt, alert, confirm).",
   "main": "index.js",
   "scripts": {

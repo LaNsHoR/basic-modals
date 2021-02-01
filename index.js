@@ -61,7 +61,9 @@ function prompt({ question = 'Question', value = '', placeholder = '',  button_a
     veil.style.zIndex = max_z_index()+100
     
     response.focus()
-    response.onkeydown = event => event.key == 'Enter' && button_accept.click()
+    response.onkeydown = event => {
+        event.key == 'Enter' && button_accept.click()
+    }
 
     return new Promise( (resolve, reject ) => {
         button_accept.onclick = () => {
