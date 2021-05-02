@@ -1,7 +1,7 @@
 const blue = '#90d0f6';
 
 const style = {
-    '.BasicModalsVeilAlert, .BasicModalsVeilConfirm, .BasicModalsVeilPrompt': {
+    '.BasicModalsVeil, .BasicModalsVeilAlert, .BasicModalsVeilConfirm, .BasicModalsVeilPrompt': {
         background: 'rgba(0, 0, 0, 0.5)',
         position: 'fixed',
         top: 0,
@@ -12,7 +12,16 @@ const style = {
         alignItems: 'center',
         justifyContent: 'center',
         opacity: 0,
-        transition: 'opacity 0.5s',
+        transition: 'opacity 0.3s',
+    },
+
+    '.BasicModalsVeilText': {
+        fontSize: '40px',
+        fontFamily: 'sans-serif',
+        color: 'white',
+        fontWeight: 'bold',
+        '-webkit-text-stroke-width': '2px',
+        '-webkit-text-stroke-color': '#565656'
     },
 
     '.BasicModalsBox': {

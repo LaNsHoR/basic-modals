@@ -16,6 +16,8 @@
         <button onclick="BasicModals.alert('Hello World')">Alert default</button>
         <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert custom</button>
         <button id='cool'>Confirm cool</button>
+        <button onclick="show_veil()">Veil</button>
+        <button onclick="show_veil_text('some text here')">Veil with text</button>
         <button id='chain'>(Prompt - Confirm - Alert) chain</button>
         <div id='results'></div>
         <script>
@@ -42,6 +44,17 @@
             }
 
             document.getElementById('chain').onclick = chain_click
+
+            const show_veil = () => {
+                const close = BasicModals.veil()
+                setTimeout( close, 2000 )
+            }
+
+            const show_veil_text = text => {
+                const close = BasicModals.veil( {text} )
+                setTimeout( close, 2000 )
+            }
+
         </script>
     </body>
 </html>

@@ -120,6 +120,49 @@ prompt( {
 </script>
 ```
 
+## Veil
+
+An empty veil to block the viewport. It returns a function which will remove the veil when called.
+
+### Use 0: Import veil
+
+```javascript
+const { veil } = require('basic-modals')
+```
+
+### Use 1: Invoke it
+
+```javascript
+// render the veil
+const close = veil()
+// remove the veil after 3 seconds
+setTimeout( close, 3000)
+```
+
+### Use 2: Add some text to the veil
+
+```javascript
+const close = veil({ text : 'some text here' })
+setTimeout( close, 3000)
+```
+
+### Use 3: Close method returns a promise
+
+When calling close the veil won't be removed immediately, it will be removed asynchronously after the fade out transition ends. If you need to know when the veil is removed from the DOM you can use the promise returned by the close method.
+
+```javascript
+const close = veil()
+close().then( _ => do_something() )
+```
+
+### Use 4: Using the BasicModals global object in a browser's scope
+
+```html
+<script>
+    const close = BasicModals.veil( { text: 'loading... please wait' } )
+</script>
+```
+
 ## Adding custom styles
 
 This package will add a style tag with the modal's CSS in your head section. The classes are prefixed by `.BasicModals` and the should be self-explanatory, so you can add your own CSS selectors for those classes in your CSS and override / expand the default style.
