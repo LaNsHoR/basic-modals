@@ -42,15 +42,21 @@ function alert({ message = '', button_ok_content = 'Ok' } = {}) {
     })
 }
 
-function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_content = 'No' } = {}) {
+function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_content = 'No', button_cancel_content = null } = {}) {
     question = typeof arguments[0] == 'string' ? arguments[0] : question
 
     const veil       = HTML('div',    {className: 'BasicModalsVeilConfirm'}, document.body )
     const container  = HTML('div',    {className: 'BasicModalsBox'}, veil)
     const title      = HTML('div',    {className: 'BasicModalsTitle'}, container, question)
     const line       = HTML('div',    {className: 'BasicModalsLineConfirm'}, container)
+
+    let button_cancel = null
+    if( button_cancel_content ) {
+        button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)
+    }
+
+    const button_no  = HTML('button', {className: 'BasicModalsButtonNo'}, line, button_no_content)
     const button_yes = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_yes_content)
-    const button_no  = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_no_content)
 
     button_yes.focus()
     fade_in(veil)
@@ -58,6 +64,8 @@ function confirm({ question = 'Question', button_yes_content = 'Yes', button_no_
     return new Promise( (resolve, reject ) => {
         button_yes.onclick = () => { fade_out(veil).then( _ => resolve(true) ) }
         button_no.onclick = () => { fade_out(veil).then( _ => resolve(false) ) }
+        if( button_cancel )
+            button_cancel.onclick = () => { fade_out(veil).then( _ => reject() ) }
     })
 }
 
@@ -69,8 +77,8 @@ function prompt({ question = 'Question', value = '', placeholder = '',  button_a
     const title         = HTML('div',    {className: 'BasicModalsTitle'}, container, question)
     const response      = HTML('input',  {className: 'BasicModalsInput', type:'text', id:"PromptResponse", value, placeholder }, container)
     const line          = HTML('div',    {className: 'BasicModalsLinePrompt'}, container)
-    const button_accept = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_accept_content)
     const button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)
+    const button_accept = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_accept_content)
 
     fade_in(veil)
     

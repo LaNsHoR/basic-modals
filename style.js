@@ -72,7 +72,7 @@ const style = {
         marginLeft: '10px',
     },
 
-    '.BasicModalsButtonOk': {
+    '.BasicModalsButtonOk, .BasicModalsButtonNo': {
         background: blue,
         border: 0,
         borderRadius: '4px',
@@ -83,7 +83,7 @@ const style = {
         transition: 'background 0.2s'
     },
 
-    '.BasicModalsButtonOk:hover': {
+    '.BasicModalsButtonOk:hover, .BasicModalsButtonNo:hover': {
         background: '#54b8f3'
     },
 

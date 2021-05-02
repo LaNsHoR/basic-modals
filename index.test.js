@@ -88,7 +88,7 @@ test('render custom confirm', () => {
     const promise = confirm({question, button_yes_content, button_no_content}).then( _ => expect(document.querySelector('.BasicModalsTitle')).toBe(null) )
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
     expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_yes_content)
-    expect(document.querySelector('.BasicModalsButtonCancel').innerHTML).toBe(button_no_content)
+    expect(document.querySelector('.BasicModalsButtonNo').innerHTML).toBe(button_no_content)
     document.querySelector('.BasicModalsButtonOk').click()
     return promise
 })
@@ -103,7 +103,7 @@ test('test confirm promise (answer: yes)', () => {
     })
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
     expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_yes_content)
-    expect(document.querySelector('.BasicModalsButtonCancel').innerHTML).toBe(button_no_content)
+    expect(document.querySelector('.BasicModalsButtonNo').innerHTML).toBe(button_no_content)
     document.querySelector('.BasicModalsButtonOk').click()
     return promise
 })
@@ -118,7 +118,24 @@ test('test confirm promise (answer: no)', () => {
     })
     expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
     expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_yes_content)
-    expect(document.querySelector('.BasicModalsButtonCancel').innerHTML).toBe(button_no_content)
+    expect(document.querySelector('.BasicModalsButtonNo').innerHTML).toBe(button_no_content)
+    document.querySelector('.BasicModalsButtonNo').click()
+    return promise
+})
+
+test('test confirm with cancel', () => {
+    expect.assertions(5)
+    const question = 'hello'
+    const button_yes_content = 'I say YES!'
+    const button_no_content = 'I say NO!'
+    const button_cancel_content = 'Cancel this!!'
+    const promise = confirm({question, button_yes_content, button_no_content, button_cancel_content}).catch( _ => {
+        expect(document.querySelector('.BasicModalsTitle')).toBe(null)
+    })
+    expect(document.querySelector('.BasicModalsTitle').innerHTML).toBe(question)
+    expect(document.querySelector('.BasicModalsButtonOk').innerHTML).toBe(button_yes_content)
+    expect(document.querySelector('.BasicModalsButtonNo').innerHTML).toBe(button_no_content)
+    expect(document.querySelector('.BasicModalsButtonCancel').innerHTML).toBe(button_cancel_content)
     document.querySelector('.BasicModalsButtonCancel').click()
     return promise
 })

@@ -16,6 +16,7 @@
         <button onclick="BasicModals.alert('Hello World')">Alert default</button>
         <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert custom</button>
         <button id='cool'>Confirm cool</button>
+        <button id='cancel'>Confirm with cancel</button>
         <button onclick="show_veil()">Veil</button>
         <button onclick="show_veil_text('some text here')">Veil with text</button>
         <button id='chain'>(Prompt - Confirm - Alert) chain</button>
@@ -33,6 +34,17 @@
                         results.innerHTML += `You think this is cool!<br>\n`
                     else
                         results.innerHTML += `Your don´t think this is cool :(<br>\n`
+                })
+            }
+
+            document.getElementById('cancel').onclick = () => {
+                BasicModals.confirm({ question:'save before exit?', button_yes_content: 'Save', button_no_content: 'No!!', button_cancel_content: 'Cancel' }).then( save => {
+                    if( save )
+                        results.innerHTML += `You saved the changes.<br>\n`
+                    else
+                        results.innerHTML += `You didn't save the changes.<br>\n`
+                }).catch( cancel => {
+                    results.innerHTML += `You cancelled.<br>\n`
                 })
             }
 

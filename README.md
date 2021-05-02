@@ -67,7 +67,17 @@ confirm( { question: 'like notifications?', button_yes_content: 'always', button
     .then( response => { /* ... */ } )
 ```
 
-### Use 3: Using the BasicModals global object in a browser's scope
+### Use 3: Adding a Cancel button
+
+For adding a cancel button, just add a `button_cancel_content` parameter with the button text content.
+
+```javascript
+confirm( { question: 'save changes?', button_yes_content: 'Of course', button_no_content:'Never', button_cancel_content:'Cancel' } )
+    .then( saved => { /* saved = true if button_yes was clicked, false if button_no was clicked */ } )
+    .catch( _ => { /* catch section is executed when button_cancel is clicked */ })
+```
+
+### Use 4: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
