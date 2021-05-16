@@ -11,14 +11,17 @@
     </head>
     <body>        
         <script src="modals.js"></script>
-        <button id='name'>Question your name</button>
-        <button onclick="BasicModals.prompt('No actions')">Prompt with no actions</button>
         <button onclick="BasicModals.alert('Hello World')">Alert default</button>
         <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert custom</button>
+        <button onclick="BasicModals.alert({ message: 'Hello World', title:'My lovely title' })">Alert with title</button>
         <button id='cool'>Confirm cool</button>
         <button id='cancel'>Confirm with cancel</button>
+        <button onclick="BasicModals.confirm({ question: 'Hello World', title:'My lovely title' })">Confirm with title</button>
+        <button onclick="BasicModals.prompt('No actions')">Prompt with no actions</button>
+        <button onclick="BasicModals.prompt({question:'No actions', title:'My lovely title'})">Prompt with title</button>
         <button onclick="show_veil()">Veil</button>
         <button onclick="show_veil_text('some text here')">Veil with text</button>
+        <button id='name'>Question your name</button>
         <button id='chain'>(Prompt - Confirm - Alert) chain</button>
         <div id='results'></div>
         <script>

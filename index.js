@@ -4,9 +4,9 @@ const { style } = require('./style')
 CSS( style )
 
 const defaults = {
-    alert: { message: '', button_ok_content: 'Ok' },
-    confirm: { question: 'Question', button_yes_content: 'Yes', button_no_content: 'No', button_cancel_content: null },
-    prompt: { question: 'Question', value: '', placeholder: '',  button_accept_content: 'Accept', button_cancel_content: 'Cancel' },
+    alert: { message: 'Default Message', button_ok_content: 'Ok', title:null },
+    confirm: { question: 'Default Question', button_yes_content: 'Yes', button_no_content: 'No', button_cancel_content: null, title:null },
+    prompt: { question: 'Default Question', value: '', placeholder: '',  button_accept_content: 'Accept', button_cancel_content: 'Cancel', title:null },
     veil: { text:'' }
 }
 
@@ -36,11 +36,12 @@ const fade_out = veil => (new Promise( done => {
 
 function alert( options = {} ) {
     const parameters = typeof options == 'string' ? { message: options } : options
-    const { message, button_ok_content } = { ...defaults_original.alert, ...defaults.alert, ...parameters }
+    const { message, button_ok_content, title } = { ...defaults_original.alert, ...defaults.alert, ...parameters }
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilAlert'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    const title         = HTML('div',    {className: 'BasicModalsTitle'}, container, message)
+    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
+    const content       = HTML('div',    {className: 'BasicModalsContent'}, container, message)
     const line          = HTML('div',    {className: 'BasicModalsLineAlert'}, container)
     const button_ok     = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_ok_content)
 
@@ -54,11 +55,12 @@ function alert( options = {} ) {
 
 function confirm( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
-    const { question, button_yes_content, button_no_content, button_cancel_content } = { ...defaults_original.confirm, ...defaults.confirm, ...parameters }
+    const { question, button_yes_content, button_no_content, button_cancel_content, title } = { ...defaults_original.confirm, ...defaults.confirm, ...parameters }
 
     const veil       = HTML('div',    {className: 'BasicModalsVeilConfirm'}, document.body )
     const container  = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    const title      = HTML('div',    {className: 'BasicModalsTitle'}, container, question)
+    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
+    const content    = HTML('div',    {className: 'BasicModalsContent'}, container, question)
     const line       = HTML('div',    {className: 'BasicModalsLineConfirm'}, container)
 
     let button_cancel = null
@@ -82,11 +84,12 @@ function confirm( options = {} ) {
 
 function prompt( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
-    const { question, value, placeholder, button_accept_content, button_cancel_content } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
+    const { question, value, placeholder, button_accept_content, button_cancel_content, title } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilPrompt'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    const title         = HTML('div',    {className: 'BasicModalsTitle'}, container, question)
+    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
+    const content       = HTML('div',    {className: 'BasicModalsContent'}, container, question)
     const response      = HTML('input',  {className: 'BasicModalsInput', type:'text', id:"PromptResponse", value, placeholder }, container)
     const line          = HTML('div',    {className: 'BasicModalsLinePrompt'}, container)
     const button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)

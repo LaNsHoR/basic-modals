@@ -37,6 +37,14 @@ const style = {
     },
 
     '.BasicModalsTitle': {
+        fontSize: '20px',
+        color: '#8a8a8a',
+        borderBottom: '1px solid #c5c5c5',
+        padding: '10px 0 15px',
+        marginBottom: '10px'
+    },
+
+    '.BasicModalsContent': {
         textAlign: 'center',
         margin: '10px 0 20px 0',
         color: '#777'
