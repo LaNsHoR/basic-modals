@@ -14,11 +14,11 @@ npm install basic-modals
 
 ### Parameter list
 
-This is the parameter list accepted by "alert". All of them are optional.
+This is the parameter list accepted by `alert`. All of them are optional.
 
-- **message**: Text content. The default value is "Default Message".
-- **button_ok_content**: Text for the "ok button". Default value is "Ok".
-- **title**: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
+- `message`: Text content. The default value is "Default Message".
+- `button_ok_content`: Text for the "ok button". Default value is "Ok".
+- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
 
 ### Use 1: Invoking it with a message without parameters
 
@@ -53,14 +53,13 @@ alert( 'Accept this' )
 
 ### Parameter list
 
-This is the parameter list accepted by "confirm". All of them are optional.
+This is the parameter list accepted by `confirm`. All of them are optional.
 
-- **question**: Text content for the question. Default value is "Default Question".
-- **button_yes_content**: Text for the "yes button". Default value is "Yes".
-- **button_no_content**: Text for the "no button". Default value is "No".
-- **button_cancel_content**: Text for the "cancel button". Default value is null. If a value evaluated as false is provided, like null or false, this modal won't have any cancel button.
-- **title**: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
-
+- `question`: Text content for the question. Default value is "Default Question".
+- `button_yes_content`: Text for the "yes button". Default value is "Yes".
+- `button_no_content`: Text for the "no button". Default value is "No".
+- `button_cancel_content`: Text for the "cancel button". Default value is null. If a value evaluated as false is provided, like null or false, this modal won't have any cancel button.
+- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -83,7 +82,12 @@ confirm( { question: 'like notifications?', button_yes_content: 'always', button
 For adding a cancel button, just add a `button_cancel_content` parameter with the button text content.
 
 ```javascript
-confirm( { question: 'save changes?', button_yes_content: 'Of course', button_no_content:'Never', button_cancel_content:'Cancel' } )
+confirm({
+    question: 'save changes?',
+    button_yes_content: 'Of course',
+    button_no_content:'Never',
+    button_cancel_content:'Cancel'
+    })
     .then( saved => { /* saved = true if button_yes was clicked, false if button_no was clicked */ } )
     .catch( _ => { /* catch section is executed when button_cancel is clicked */ })
 ```
@@ -98,6 +102,17 @@ confirm( { question: 'save changes?', button_yes_content: 'Of course', button_no
 ```
 
 ## Prompt
+
+### Parameter list
+
+This is the parameter list accepted by `prompt`. All of them are optional.
+
+- `question`: Text content for the question. Default value is "Default Question".
+- `value`: Default value in place for the input text box. Default value is '' (empty string).
+- `placeholder`: Placeholder value for the input text box. Default value is '' (empty string).
+- `button_accept_content`: Text for the "yes button". Default value is "Accept".
+- `button_cancel_content`: Text for the "cancel button". Default value is "Cancel".
+- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
 
 ### Use 0: Import prompt from the package
 
@@ -142,6 +157,12 @@ prompt( {
 ## Veil
 
 An empty veil to block the viewport. It returns a function which will remove the veil when called.
+
+### Parameter list
+
+This is the parameter list accepted by `veil`. All of them are optional.
+
+- `text`: Text content. The default value is '' (empty string).
 
 ### Use 0: Import veil
 
@@ -272,7 +293,8 @@ defaults.alert.button_ok_content = 'Agree'
 defaults.confirm.button_yes_content = 'Yep!'
 defaults.confirm.button_no_content = 'Nope'
 
-// setting a default for the question and the cancel button in a single line, overriding the original default objects
+/* setting a default for the question and the cancel button in a
+   single line, overriding the original default objects */
 defaults.prompt = { question:'¿?', button_cancel_content: 'Back' }
 
 // setting a default for the veil text
