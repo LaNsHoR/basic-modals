@@ -15,7 +15,8 @@
     "modals",
     "prompt",
     "alert",
-    "confirm"
+    "confirm",
+    "veil"
   ],
   "author": "Ernesto Azuar <lanshor@gmail.com>",
   "license": "MIT",
