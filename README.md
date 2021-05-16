@@ -1,6 +1,6 @@
 # Basic-Modals
 
-A small set of promise based HTML modals (alert, confirm, prompt).
+A basic and ultra lightweight set of promise based HTML modals (prompt, alert, confirm, veil).
 
 # Install
 
@@ -152,6 +152,13 @@ setTimeout( close, 3000)
 ### Use 2: Add some text to the veil
 
 ```javascript
+const close = veil('some text here')
+setTimeout( close, 3000)
+```
+
+or
+
+```javascript
 const close = veil({ text : 'some text here' })
 setTimeout( close, 3000)
 ```
@@ -173,7 +180,7 @@ close().then( _ => do_something() )
 </script>
 ```
 
-## Adding custom styles
+# Adding custom styles
 
 This package will add a style tag with the modal's CSS in your head section. The classes are prefixed by `.BasicModals` and the should be self-explanatory, so you can add your own CSS selectors for those classes in your CSS and override / expand the default style.
 
@@ -205,3 +212,54 @@ body .BasicModalsButtonOk:hover: {
 ```
 
 or some similar redundant ascendent section starting the selector.
+
+# Adding default values
+
+You can add default values for any parameter in any modal call, so you don't need to set them again and again.
+
+## Getting access to the default object
+
+```javascript
+const { defaults } = require('basic-modals')
+```
+
+or, in a browser's scope:
+
+```javascript
+const defaults = BasicModals.defaults
+```
+
+## Changing the default value for the alert button
+
+```javascript
+defaults.alert.button_ok_content = 'Agree'
+```
+
+Then, when calling:
+
+```javascript
+alert('hello')
+
+alert( { message: 'world' } )
+```
+
+for both cases the button ok will have the text 'Agree' instead of the default 'Ok'.
+
+## More examples
+
+The defaults are available for every parameter of every modal, a few examples below:
+
+```javascript
+// setting a default for the ok button in alert models
+defaults.alert.button_ok_content = 'Agree'
+
+// setting a default for the "yes" button and "no" buttons in confirm modals
+defaults.confirm.button_yes_content = 'Yep!'
+defaults.confirm.button_no_content = 'Nope'
+
+// setting a default for the question and the cancel button in a single line, overriding the original default objects
+defaults.prompt = { question:'¿?', button_cancel_content: 'Back' }
+
+// setting a default for the veil text
+defaults.veil.text = 'loading'
+```
