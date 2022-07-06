@@ -1,4 +1,3 @@
 node_modules
 tests/modals.js
 coverage
-package-lock.json
