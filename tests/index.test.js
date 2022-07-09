@@ -1,4 +1,4 @@
-const { alert, prompt, confirm, veil, defaults } = require('./index')
+const { alert, prompt, confirm, veil, defaults } = require('../src/index')
 
 const { document } = global
 

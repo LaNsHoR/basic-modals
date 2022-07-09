@@ -6,7 +6,7 @@ CSS( style )
 const defaults = {
     alert: { message: 'Default Message', button_ok_content: 'Ok', title:null },
     confirm: { question: 'Default Question', button_yes_content: 'Yes', button_no_content: 'No', button_cancel_content: null, title:null },
-    prompt: { question: 'Default Question', value: '', placeholder: '',  button_accept_content: 'Accept', button_cancel_content: 'Cancel', title:null },
+    prompt: { question: 'Default Question', value: '', placeholder: '',  button_accept_content: 'Accept', button_cancel_content: 'Cancel', title:null, validate:null },
     veil: { text:'' }
 }
 
@@ -84,7 +84,7 @@ function confirm( options = {} ) {
 
 function prompt( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
-    const { question, value, placeholder, button_accept_content, button_cancel_content, title } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
+    const { question, value, placeholder, button_accept_content, button_cancel_content, title, validate } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilPrompt'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
@@ -94,9 +94,25 @@ function prompt( options = {} ) {
     const line          = HTML('div',    {className: 'BasicModalsLinePrompt'}, container)
     const button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)
     const button_accept = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_accept_content)
+    const error_message = HTML('div',    {className: 'BasicModalsErrorMessage'}, line )
+
+    // validation
+    const keyup = () => {
+        const error = validate( response.value )
+        error_message.innerHTML = ''
+
+        if( ! error )
+            return button_accept.removeAttribute('disabled')
+
+        error_message.innerHTML = error
+        button_accept.setAttribute('disabled', '')
+        button_accept.classList.add('BasicModalsDisabled')
+    }
+
+    validate && response.addEventListener('keyup', keyup)
 
     fade_in(veil)
-    
+
     response.focus()
     response.onkeydown = event => {
         event.key == 'Enter' && button_accept.click()
