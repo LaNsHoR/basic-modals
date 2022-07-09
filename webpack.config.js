@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   mode: "development",
   devtool: "source-map",
-  entry: './index.js',
+  entry: './src/index.js',
   output: {
     filename: 'modals.js',
     path: path.resolve(__dirname, 'tests'),

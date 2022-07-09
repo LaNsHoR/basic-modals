@@ -9,7 +9,7 @@
             }
         </style>
     </head>
-    <body>        
+    <body>
         <script src="modals.js"></script>
         <button onclick="BasicModals.alert('Hello World')">Alert default</button>
         <button onclick="BasicModals.alert({ message: '1, 2, 3...', button_ok_content:'four' })">Alert custom</button>
@@ -23,6 +23,7 @@
         <button onclick="show_veil_text('some text here')">Veil with text</button>
         <button id='name'>Question your name</button>
         <button id='chain'>(Prompt - Confirm - Alert) chain</button>
+        <button id="validation">Validation</button>
         <div id='results'></div>
         <script>
             document.getElementById('name').onclick = () => {
@@ -60,6 +61,11 @@
 
             document.getElementById('chain').onclick = chain_click
 
+            document.getElementById('validation').onclick = () => {
+                const validate = value => ['hello', 2, '5'].includes(value) ? 'Value not allowed' : ''
+                BasicModals.prompt({ validate })
+            }
+
             const show_veil = () => {
                 const close = BasicModals.veil()
                 setTimeout( close, 2000 )
@@ -69,7 +75,6 @@
                 const close = BasicModals.veil( {text} )
                 setTimeout( close, 2000 )
             }
-
         </script>
     </body>
 </html>
