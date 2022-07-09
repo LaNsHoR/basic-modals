@@ -91,8 +91,13 @@ const style = {
         transition: 'background 0.2s'
     },
 
-    '.BasicModalsButtonOk:hover, .BasicModalsButtonNo:hover': {
+    '.BasicModalsButtonOk:not([disabled]):hover, .BasicModalsButtonNo:hover': {
         background: '#54b8f3'
+    },
+
+    '.BasicModalsButtonOk[disabled]': {
+        opacity: 0.5,
+        cursor: 'default'
     },
 
     '.BasicModalsButtonCancel': {
@@ -109,6 +114,12 @@ const style = {
     '.BasicModalsButtonCancel:hover': {
         background: '#777'
     },
+
+    '.BasicModalsErrorMessage': {
+        display: 'flex',
+        alignItems: 'center',
+        color: 'darkcyan'
+    }
 }
 
 exports.style = style

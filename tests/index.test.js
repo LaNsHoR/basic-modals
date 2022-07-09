@@ -448,6 +448,27 @@ test('render prompt with partial defaults', () => {
     return promise
 })
 
+test('render prompt with validation function', () => {
+    const validate = value => ['aa', 'bb', 'cc'].includes(value) ? `${value} is not allowed!` : ''
+    prompt( { validate })
+    const input = document.querySelector('.BasicModalsInput')
+    const cases = ['aa', 'bb', 'cc']
+
+    cases.forEach( value => {
+        // not valid
+        input.value = value
+        input.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 65 }))
+        expect(input.value).toBe(value)
+        expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe(`${value} is not allowed!`)
+        expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
+        // valid
+        input.value = 'this is valid'
+        input.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 65 }))
+        expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('')
+        expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(false)
+    })
+})
+
 test('render empty veil', () => {
     veil()
     expect(document.querySelector('.BasicModalsVeil')).toBeTruthy()
