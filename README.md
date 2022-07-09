@@ -1,6 +1,7 @@
 # Basic-Modals
 
-A basic and ultra lightweight set of promise based HTML modals (prompt, alert, confirm, veil).
+An ultra lightweight set of promise based HTML modals: `prompt`, `alert`, `confirm` and `veil`.
+
 
 # Install
 
@@ -12,13 +13,15 @@ npm install basic-modals
 
 ## Alert
 
+[![alert.png](https://i.postimg.cc/7hnJH1cw/alert.png)](https://postimg.cc/K348QTxH)
+
 ### Parameter list
 
 This is the parameter list accepted by `alert`. All of them are optional.
 
 - `message`: Text content. The default value is "Default Message".
 - `button_ok_content`: Text for the "ok button". Default value is "Ok".
-- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
+- `title`: A title on the top of the modal. By default alert modals don't have any title.
 
 ### Use 1: Invoking it with a message without parameters
 
@@ -51,6 +54,8 @@ alert( 'Accept this' )
 
 ## Confirm
 
+[![confirm.png](https://i.postimg.cc/vHG6PjgB/confirm.png)](https://postimg.cc/Lh0X5xVK)
+
 ### Parameter list
 
 This is the parameter list accepted by `confirm`. All of them are optional.
@@ -58,8 +63,8 @@ This is the parameter list accepted by `confirm`. All of them are optional.
 - `question`: Text content for the question. Default value is "Default Question".
 - `button_yes_content`: Text for the "yes button". Default value is "Yes".
 - `button_no_content`: Text for the "no button". Default value is "No".
-- `button_cancel_content`: Text for the "cancel button". Default value is null. If a value evaluated as false is provided, like null or false, this modal won't have any cancel button.
-- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
+- `button_cancel_content`: Text for the "cancel button". Default value is null. By default confirm modals don't have a cancel button.
+- `title`: A title on the top of the modal. By default confirm modals don't have any title.
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -92,6 +97,8 @@ confirm({
     .catch( _ => { /* catch section is executed when button_cancel is clicked */ })
 ```
 
+[![confirm-cancel.png](https://i.postimg.cc/h4Ld1gG6/confirm-cancel.png)](https://postimg.cc/rzpsqBxN)
+
 ### Use 4: Using the BasicModals global object in a browser's scope
 
 ```html
@@ -103,6 +110,8 @@ confirm({
 
 ## Prompt
 
+[![prompt.png](https://i.postimg.cc/fT5S1Kmv/prompt.png)](https://postimg.cc/TpLPDnky)
+
 ### Parameter list
 
 This is the parameter list accepted by `prompt`. All of them are optional.
@@ -112,9 +121,11 @@ This is the parameter list accepted by `prompt`. All of them are optional.
 - `placeholder`: Placeholder value for the input text box. Default value is '' (empty string).
 - `button_accept_content`: Text for the "yes button". Default value is "Accept".
 - `button_cancel_content`: Text for the "cancel button". Default value is "Cancel".
-- `title`: A title on the top of the modal. If a value evaluated as false is provided, like null or false, this modal won't have any title.
+- `title`: A title on the top of the modal. Ny default prompt modals don't have any title.
+- `validate`: A function to validate the input with each key press. This function will receive the value of the input field as first parameter, if the function returns...
+    - **An empty string**: The input will be considered as valid, the modal will allow to the user clicks on the accept button.
+    - **A non empty string**: The input won't be considered as valid, an error message will be displayed and the accept button will be disabled.
 
-### Use 0: Import prompt from the package
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -146,7 +157,20 @@ prompt( {
     .then( response => { /* ... */ } )
 ```
 
-### Use 4: Using the BasicModals global object in a browser's scope
+### Use 4: Adding validation
+
+```javascript
+const validate = value => {
+    const forbidden_values = ['hello', 'world']
+    return forbidden_values.includes(value) ? 'Value not allowed' : ''
+}
+
+prompt( { validate }).then( response => { /* ... */ } )
+```
+
+[![prompt-validate.png](https://i.postimg.cc/jS5nT7hY/prompt-validate.png)](https://postimg.cc/w7Cjc3Pw)
+
+### Use 5: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
@@ -164,15 +188,11 @@ This is the parameter list accepted by `veil`. All of them are optional.
 
 - `text`: Text content. The default value is '' (empty string).
 
-### Use 0: Import veil
-
-```javascript
-const { veil } = require('basic-modals')
-```
-
 ### Use 1: Invoking it and closing it after 3 seconds
 
 ```javascript
+const { veil } = require('basic-modals')
+
 // render the veil
 const close = veil()
 // remove the veil after 3 seconds
@@ -217,23 +237,22 @@ This package will add a style tag with the modal's CSS in your head section. The
 Example:
 
 ```css
+/* This will turn the Ok button red for all the modals */
 .BasicModalsButtonOk:hover: {
     background: red
 }
 ```
 
-The above will turn the Ok button to red when the mouse cursor is over it.
-
 Every modal is a children of a "veil" div with one of the following classes: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm` and `BasicModalsVeilPrompt`. You can use this to customize the style of the different modals separately.
 
 ```css
-/* this only will affect the confirm modal */
+/* this will affect only confirm modals */
 .BasicModalsVeilConfirm .BasicModalsButtonOk:hover: {
     background: red
 }
 ```
 
-If you need to increase the specificity of your selectors to override the default ones, just use:
+**TIP**: If you need to increase the specificity of your selectors to override the default ones, just use a body tag before your selector:
 
 ```css
 body .BasicModalsButtonOk:hover: {
@@ -241,7 +260,7 @@ body .BasicModalsButtonOk:hover: {
 }
 ```
 
-or some similar redundant ascendent section starting the selector.
+or any redundant selector fragment to increase the specificity.
 
 # Adding default values
 
@@ -277,7 +296,7 @@ in both cases the "button ok" will have the text 'Agree' instead of the default 
 
 ## More examples
 
-The defaults object contents the following pattern:
+The defaults object schema is:
 
 ```javascript
 defaults[modal_type][parameter_name]
@@ -299,4 +318,7 @@ defaults.prompt = { question:'¿?', button_cancel_content: 'Back' }
 
 // setting a default for the veil text
 defaults.veil.text = 'loading'
+
+// setting a default for the validate function
+defaults.prompt.validate = value => global_validator( value )
 ```
