@@ -109,7 +109,10 @@ function prompt( options = {} ) {
         button_accept.classList.add('BasicModalsDisabled')
     }
 
-    validate && response.addEventListener('keyup', keyup)
+    if( validate ) {
+        response.addEventListener('keyup', keyup)
+        keyup()
+    }
 
     fade_in(veil)
 

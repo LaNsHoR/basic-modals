@@ -469,6 +469,26 @@ test('render prompt with validation function', () => {
     })
 })
 
+test('render prompt with validation executed on first render (empty value)', () => {
+    const validate = value => value ? '' : 'Can not be empty'
+    prompt( { validate })
+    const input = document.querySelector('.BasicModalsInput')
+
+    expect(input.value).toBe('')
+    expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('Can not be empty')
+    expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
+})
+
+test('render prompt with validation executed on first render (custom value)', () => {
+    const validate = value => value != 'hello' ? '' : 'Hello not allowed'
+    prompt( { validate, value:'hello' })
+    const input = document.querySelector('.BasicModalsInput')
+
+    expect(input.value).toBe('hello')
+    expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('Hello not allowed')
+    expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
+})
+
 test('render empty veil', () => {
     veil()
     expect(document.querySelector('.BasicModalsVeil')).toBeTruthy()
