@@ -36,7 +36,7 @@ const fade_out = veil => (new Promise( done => {
 
 function alert( options = {} ) {
     const parameters = typeof options == 'string' ? { message: options } : options
-    const { message, button_ok_content, title } = { ...defaults_original.alert, ...defaults.alert, ...parameters }
+    const { message, button_ok_content, title, className, id } = { ...defaults_original.alert, ...defaults.alert, ...parameters }
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilAlert'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
@@ -44,6 +44,11 @@ function alert( options = {} ) {
     const content       = HTML('div',    {className: 'BasicModalsContent'}, container, message)
     const line          = HTML('div',    {className: 'BasicModalsLineAlert'}, container)
     const button_ok     = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_ok_content)
+
+    if( className )
+        veil.classList.add( className )
+    if( id )
+        veil.id = id
 
     button_ok.focus()
     fade_in( veil )
@@ -55,7 +60,7 @@ function alert( options = {} ) {
 
 function confirm( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
-    const { question, button_yes_content, button_no_content, button_cancel_content, title } = { ...defaults_original.confirm, ...defaults.confirm, ...parameters }
+    const { question, button_yes_content, button_no_content, button_cancel_content, title, className, id } = { ...defaults_original.confirm, ...defaults.confirm, ...parameters }
 
     const veil       = HTML('div',    {className: 'BasicModalsVeilConfirm'}, document.body )
     const container  = HTML('div',    {className: 'BasicModalsBox'}, veil)
@@ -71,6 +76,11 @@ function confirm( options = {} ) {
     const button_no  = HTML('button', {className: 'BasicModalsButtonNo'}, line, button_no_content)
     const button_yes = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_yes_content)
 
+    if( className )
+        veil.classList.add( className )
+    if( id )
+        veil.id = id
+
     button_yes.focus()
     fade_in(veil)
 
@@ -84,7 +94,7 @@ function confirm( options = {} ) {
 
 function prompt( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
-    const { question, value, placeholder, button_accept_content, button_cancel_content, title, validate } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
+    const { question, value, placeholder, button_accept_content, button_cancel_content, title, validate, className, id } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilPrompt'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
@@ -95,6 +105,11 @@ function prompt( options = {} ) {
     const button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)
     const button_accept = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_accept_content)
     const error_message = HTML('div',    {className: 'BasicModalsErrorMessage'}, line )
+
+    if( className )
+        veil.classList.add( className )
+    if( id )
+        veil.id = id
 
     // validation
     const keyup = () => {
@@ -129,10 +144,15 @@ function prompt( options = {} ) {
 
 function veil( options = {} ) {
     const parameters = typeof options == 'string' ? { text: options } : options
-    const { text } = { ...defaults_original.veil, ...defaults.veil, ...parameters }
+    const { text, className, id } = { ...defaults_original.veil, ...defaults.veil, ...parameters }
 
     const veil = HTML('div', {className: 'BasicModalsVeil'}, document.body )
     HTML('div', { className: 'BasicModalsVeilText'}, veil, text)
+
+    if( className )
+        veil.classList.add( className )
+    if( id )
+        veil.id = id
 
     fade_in(veil)
 

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 const { alert, prompt, confirm, veil, defaults } = require('../src/index')
 
 const { document } = global
@@ -539,4 +543,40 @@ test('render veil with partial defaults', () => {
     defaults.veil = {}
     veil()
     expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(defaults_original.veil.text)
+})
+
+test('render prompt with classname and id', () => {
+    const className = "my_class"
+    const id = "my_id"
+    prompt( { className, id } )
+    const element = document.querySelector('.BasicModalsVeilPrompt')
+    expect(element.classList.contains(className)).toBeTruthy()
+    expect(element.id).toBe(id)
+})
+
+test('render alert with classname and id', () => {
+    const className = "my_class"
+    const id = "my_id"
+    alert( { className, id } )
+    const element = document.querySelector('.BasicModalsVeilAlert')
+    expect(element.classList.contains(className)).toBeTruthy()
+    expect(element.id).toBe(id)
+})
+
+test('render confirm with classname and id', () => {
+    const className = "my_class"
+    const id = "my_id"
+    confirm( { className, id } )
+    const element = document.querySelector('.BasicModalsVeilConfirm')
+    expect(element.classList.contains(className)).toBeTruthy()
+    expect(element.id).toBe(id)
+})
+
+test('render veil with classname and id', () => {
+    const className = "my_class"
+    const id = "my_id"
+    veil( { className, id } )
+    const element = document.querySelector('.BasicModalsVeil')
+    expect(element.classList.contains(className)).toBeTruthy()
+    expect(element.id).toBe(id)
 })

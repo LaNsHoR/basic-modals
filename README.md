@@ -22,6 +22,8 @@ This is the parameter list accepted by `alert`. All of them are optional.
 - `message`: Text content. The default value is "Default Message".
 - `button_ok_content`: Text for the "ok button". Default value is "Ok".
 - `title`: A title on the top of the modal. By default alert modals don't have any title.
+- `className`: A class attribute applied to the alert's root element.
+- `id`: An id attribute applied to the alert's root element.
 
 ### Use 1: Invoking it with a message without parameters
 
@@ -65,6 +67,8 @@ This is the parameter list accepted by `confirm`. All of them are optional.
 - `button_no_content`: Text for the "no button". Default value is "No".
 - `button_cancel_content`: Text for the "cancel button". Default value is null. By default confirm modals don't have a cancel button.
 - `title`: A title on the top of the modal. By default confirm modals don't have any title.
+- `className`: A class attribute applied to the confirm's root element.
+- `id`: An id attribute applied to the confirm's root element.
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -125,6 +129,8 @@ This is the parameter list accepted by `prompt`. All of them are optional.
 - `validate`: A function to validate the input with each key press. This function will receive the value of the input field as first parameter, if the function returns...
     - **An empty string**: The input will be considered as valid, the modal will allow to the user clicks on the accept button.
     - **A non empty string**: The input won't be considered as valid, an error message will be displayed and the accept button will be disabled.
+- `className`: A class attribute applied to the prompt's root element.
+- `id`: An id attribute applied to the prompt's root element.
 
 
 ### Use 1: Invoking it with a question without parameters
@@ -187,6 +193,8 @@ An empty veil to block the viewport. It returns a function which will remove the
 This is the parameter list accepted by `veil`. All of them are optional.
 
 - `text`: Text content. The default value is '' (empty string).
+- `className`: A class attribute applied to the veil's root element.
+- `id`: An id attribute applied to the veil's root element.
 
 ### Use 1: Invoking it and closing it after 3 seconds
 
