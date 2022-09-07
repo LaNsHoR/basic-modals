@@ -40,8 +40,8 @@ function alert( options = {} ) {
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilAlert'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
-    const content       = HTML('div',    {className: 'BasicModalsContent'}, container, message)
+                          HTML('div',    {className: 'BasicModalsTitle'}, container, title)
+                          HTML('div',    {className: 'BasicModalsContent'}, container, message)
     const line          = HTML('div',    {className: 'BasicModalsLineAlert'}, container)
     const button_ok     = HTML('button', {className: 'BasicModalsButtonOk'}, line, button_ok_content)
 
@@ -64,8 +64,8 @@ function confirm( options = {} ) {
 
     const veil       = HTML('div',    {className: 'BasicModalsVeilConfirm'}, document.body )
     const container  = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
-    const content    = HTML('div',    {className: 'BasicModalsContent'}, container, question)
+                       HTML('div',    {className: 'BasicModalsTitle'}, container, title)
+                       HTML('div',    {className: 'BasicModalsContent'}, container, question)
     const line       = HTML('div',    {className: 'BasicModalsLineConfirm'}, container)
 
     let button_cancel = null
@@ -98,8 +98,8 @@ function prompt( options = {} ) {
 
     const veil          = HTML('div',    {className: 'BasicModalsVeilPrompt'}, document.body )
     const container     = HTML('div',    {className: 'BasicModalsBox'}, veil)
-    title && HTML('div', {className: 'BasicModalsTitle'}, container, title)
-    const content       = HTML('div',    {className: 'BasicModalsContent'}, container, question)
+                          HTML('div',    {className: 'BasicModalsTitle'}, container, title)
+                          HTML('div',    {className: 'BasicModalsContent'}, container, question)
     const response      = HTML('input',  {className: 'BasicModalsInput', type:'text', id:"PromptResponse", value, placeholder }, container)
     const line          = HTML('div',    {className: 'BasicModalsLinePrompt'}, container)
     const button_cancel = HTML('button', {className: 'BasicModalsButtonCancel'}, line, button_cancel_content)

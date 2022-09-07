@@ -41,7 +41,6 @@ test('render basic alert', () => {
     const message = 'hello'
     const promise = alert(message).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
     expect(document.querySelector('.BasicModalsContent').innerHTML).toBe(message)
-    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
     document.querySelector('.BasicModalsButtonOk').click()
     return promise
 })
@@ -155,7 +154,6 @@ test('render basic confirm', () => {
     const question = 'hello'
     const promise = confirm(question).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
     expect(document.querySelector('.BasicModalsContent').innerHTML).toBe(question)
-    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
     expect(document.querySelector('.BasicModalsButtonCancel')).toBe(null)
     document.querySelector('.BasicModalsButtonOk').click()
     return promise
@@ -329,7 +327,6 @@ test('render basic prompt', () => {
     const question = 'write something'
     const promise = prompt(question).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
     expect(document.querySelector('.BasicModalsContent').innerHTML).toBe(question)
-    expect(document.querySelector('.BasicModalsTitle')).toBe(null)
     document.querySelector('.BasicModalsButtonOk').click()
     return promise
 })

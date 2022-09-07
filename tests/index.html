@@ -63,7 +63,7 @@
 
             document.getElementById('validation').onclick = () => {
                 const validate = value => ['hello', 2, '5'].includes(value) ? 'Value not allowed' : ''
-                BasicModals.prompt({ validate })
+                BasicModals.prompt({ question:'hello, 2 and "5" not allowed', validate })
             }
 
             const show_veil = () => {

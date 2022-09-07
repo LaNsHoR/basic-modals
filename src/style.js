@@ -44,6 +44,10 @@ const style = {
         marginBottom: '10px'
     },
 
+    '.BasicModalsTitle:empty': {
+        display: 'none'
+    },
+
     '.BasicModalsContent': {
         textAlign: 'center',
         margin: '10px 0 20px 0',
