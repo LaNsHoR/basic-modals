@@ -8,6 +8,18 @@ const { document } = global
 
 const defaults_original = JSON.parse( JSON.stringify( defaults ) )
 
+// jsdom doesn't implement <dialog>'s showModal/close, so mock them: showModal sets the open state, close sets the
+// return value + open state and fires the 'close' event the lifecycle relies on (on_dialog_close / veil close).
+beforeAll( () => {
+    HTMLDialogElement.prototype.showModal = function() { this.open = true }
+    HTMLDialogElement.prototype.close = function( value ) {
+        this.open = false
+        if( value !== undefined )
+            this.returnValue = value
+        this.dispatchEvent( new Event( 'close' ) )
+    }
+})
+
 beforeEach( () => {
     document.body.innerHTML = ''
     // restore defaults
@@ -20,20 +32,6 @@ test('render empty alert', () => {
     expect(document.querySelector('.BasicModalsContent')).toBeTruthy()
     expect(document.activeElement).toBe(document.querySelector('.BasicModalsButtonOk'))
     document.querySelector('.BasicModalsButtonOk').click()
-    return promise
-})
-
-test('render alert z-index', () => {
-    const promise = Promise.all([
-        alert(),
-        alert(),
-        alert()
-    ]).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
-    const veils = document.querySelectorAll('.BasicModalsVeilAlert')
-    expect(veils[0].style.zIndex).toBe("100")
-    expect(veils[1].style.zIndex).toBe("200")
-    expect(veils[2].style.zIndex).toBe("300")
-    document.querySelectorAll('.BasicModalsButtonOk').forEach( button => button.click() )
     return promise
 })
 
@@ -133,20 +131,6 @@ test('render empty confirm', () => {
     const promise = confirm().then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
     expect(document.querySelector('.BasicModalsContent')).toBeTruthy()
     document.querySelector('.BasicModalsButtonOk').click()
-    return promise
-})
-
-test('render confirm z-index', () => {
-    const promise = Promise.all([
-        confirm(),
-        confirm(),
-        confirm()
-    ]).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
-    const veils = document.querySelectorAll('.BasicModalsVeilConfirm')
-    expect(veils[0].style.zIndex).toBe("100")
-    expect(veils[1].style.zIndex).toBe("200")
-    expect(veils[2].style.zIndex).toBe("300")
-    document.querySelectorAll('.BasicModalsButtonOk').forEach( button => button.click() )
     return promise
 })
 
@@ -308,21 +292,6 @@ test('render empty prompt', () => {
     return promise
 })
 
-test('render prompt z-index', () => {
-    const promise = Promise.all([
-        prompt(),
-        prompt(),
-        prompt()
-    ]).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
-
-    const veils = document.querySelectorAll('.BasicModalsVeilPrompt')
-    expect(veils[0].style.zIndex).toBe("100")
-    expect(veils[1].style.zIndex).toBe("200")
-    expect(veils[2].style.zIndex).toBe("300")
-    document.querySelectorAll('.BasicModalsButtonOk').forEach( button => button.click() )
-    return promise
-})
-
 test('render basic prompt', () => {
     const question = 'write something'
     const promise = prompt(question).then( _ => expect(document.querySelector('.BasicModalsContent')).toBe(null) )
@@ -458,13 +427,13 @@ test('render prompt with validation function', () => {
     cases.forEach( value => {
         // not valid
         input.value = value
-        input.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 65 }))
+        input.dispatchEvent(new Event('input'))
         expect(input.value).toBe(value)
         expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe(`${value} is not allowed!`)
         expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
         // valid
         input.value = 'this is valid'
-        input.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 65 }))
+        input.dispatchEvent(new Event('input'))
         expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('')
         expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(false)
     })
@@ -488,6 +457,55 @@ test('render prompt with validation executed on first render (custom value)', ()
     expect(input.value).toBe('hello')
     expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('Hello not allowed')
     expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
+})
+
+test('prompt with custom inputs resolves an object (and ignores non-input extras)', () => {
+    const name = document.createElement('input')
+    name.value = 'my project'
+    const separator = document.createElement('hr')   // extra: no .value, must be rendered but ignored in the result
+    const flavour = document.createElement('select') // a real field, empty select value is ''
+    const promise = prompt({ inputs: { name, separator, flavour } }).then( result => {
+        expect(result).toEqual({ name: 'my project', flavour: '' })
+    })
+    // all three elements are rendered inside the inputs container
+    expect(document.querySelector('.BasicModalsInputs')).toBeTruthy()
+    expect(document.querySelector('.BasicModalsInputs').children.length).toBe(3)
+    // there's no classic question/input when inputs are used
+    expect(document.querySelector('.BasicModalsContent')).toBe(null)
+    document.querySelector('.BasicModalsButtonOk').click()
+    return promise
+})
+
+test('prompt inputs with per-field validate object', () => {
+    const a = document.createElement('input')
+    a.value = 'ok'
+    const b = document.createElement('input')
+    b.value = ''
+    prompt({ inputs: { a, b }, validate: { b: value => value ? '' : 'b is required' } })
+    // a has no validator, b fails → accept disabled with b's message
+    expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('b is required')
+    expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(true)
+    // fix b
+    b.value = 'now valid'
+    b.dispatchEvent(new Event('input'))
+    expect(document.querySelector('.BasicModalsErrorMessage').innerHTML).toBe('')
+    expect(document.querySelector('.BasicModalsButtonOk').hasAttribute('disabled')).toBe(false)
+})
+
+test('escape:false prevents the dialog from closing on Escape', () => {
+    prompt({ escape: false })
+    const dialog = document.querySelector('dialog.BasicModalsBox')
+    const cancel = new Event('cancel', { cancelable: true })
+    dialog.dispatchEvent( cancel )
+    expect(cancel.defaultPrevented).toBe(true)
+})
+
+test('escape is allowed by default (cancel event not prevented)', () => {
+    prompt()
+    const dialog = document.querySelector('dialog.BasicModalsBox')
+    const cancel = new Event('cancel', { cancelable: true })
+    dialog.dispatchEvent( cancel )
+    expect(cancel.defaultPrevented).toBe(false)
 })
 
 test('render empty veil', () => {
@@ -546,7 +564,7 @@ test('render prompt with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     prompt( { className, id } )
-    const element = document.querySelector('.BasicModalsVeilPrompt')
+    const element = document.querySelector('dialog.BasicModalsBox')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -555,7 +573,7 @@ test('render alert with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     alert( { className, id } )
-    const element = document.querySelector('.BasicModalsVeilAlert')
+    const element = document.querySelector('dialog.BasicModalsBox')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -564,7 +582,7 @@ test('render confirm with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     confirm( { className, id } )
-    const element = document.querySelector('.BasicModalsVeilConfirm')
+    const element = document.querySelector('dialog.BasicModalsBox')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -573,7 +591,7 @@ test('render veil with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     veil( { className, id } )
-    const element = document.querySelector('.BasicModalsVeil')
+    const element = document.querySelector('dialog.BasicModalsVeil')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })

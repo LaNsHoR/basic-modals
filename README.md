@@ -2,6 +2,7 @@
 
 An ultra lightweight set of promise based HTML modals: `prompt`, `alert`, `confirm` and `veil`.
 
+> **v2.0.0** — modals are now rendered with the native `<dialog>` element: top layer (no z-index juggling), native `::backdrop`, focus-trap and Escape-to-close come for free. This is a breaking, structural change (see *Adding custom styles*). `prompt` also gains a custom `inputs` option, and every modal an `escape` toggle.
 
 # Install
 
@@ -22,8 +23,9 @@ This is the parameter list accepted by `alert`. All of them are optional.
 - `message`: Text content. The default value is "Default Message".
 - `button_ok_content`: Text for the "ok button". Default value is "Ok".
 - `title`: A title on the top of the modal. By default alert modals don't have any title.
-- `className`: A class attribute applied to the alert's root element.
-- `id`: An id attribute applied to the alert's root element.
+- `escape`: Whether pressing Escape closes the modal. Default `true`.
+- `className`: A class attribute applied to the alert's root element (the `<dialog>`).
+- `id`: An id attribute applied to the alert's root element (the `<dialog>`).
 
 ### Use 1: Invoking it with a message without parameters
 
@@ -67,8 +69,9 @@ This is the parameter list accepted by `confirm`. All of them are optional.
 - `button_no_content`: Text for the "no button". Default value is "No".
 - `button_cancel_content`: Text for the "cancel button". Default value is null. By default confirm modals don't have a cancel button.
 - `title`: A title on the top of the modal. By default confirm modals don't have any title.
-- `className`: A class attribute applied to the confirm's root element.
-- `id`: An id attribute applied to the confirm's root element.
+- `escape`: Whether pressing Escape dismisses the modal. Default `true`. A dismissal rejects the promise when a cancel button is present, otherwise it resolves to `false`.
+- `className`: A class attribute applied to the confirm's root element (the `<dialog>`).
+- `id`: An id attribute applied to the confirm's root element (the `<dialog>`).
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -126,11 +129,13 @@ This is the parameter list accepted by `prompt`. All of them are optional.
 - `button_accept_content`: Text for the "yes button". Default value is "Accept".
 - `button_cancel_content`: Text for the "cancel button". Default value is "Cancel".
 - `title`: A title on the top of the modal. Ny default prompt modals don't have any title.
-- `validate`: A function to validate the input with each key press. This function will receive the value of the input field as first parameter, if the function returns...
-    - **An empty string**: The input will be considered as valid, the modal will allow to the user clicks on the accept button.
-    - **A non empty string**: The input won't be considered as valid, an error message will be displayed and the accept button will be disabled.
-- `className`: A class attribute applied to the prompt's root element.
-- `id`: An id attribute applied to the prompt's root element.
+- `validate`: Either a single function applied to every field, or an object `{ fieldName: fn }` applying a validator per named field (useful with `inputs`). Each validator receives the field value and returns...
+    - **An empty string**: The field is valid; the accept button is enabled.
+    - **A non empty string**: The field is invalid; the message is displayed and the accept button is disabled.
+- `inputs`: An object `{ name: HTMLElement }` of pre-built elements that REPLACE the classic question + text input. Every element is rendered (wrapped in a `.BasicModalsInputs` container); those exposing a `.value` become result fields, while extras without a value (separators, labels) are rendered but ignored. When `inputs` is used the promise resolves to an object `{ name: value }` instead of a single string.
+- `escape`: Whether pressing Escape dismisses the modal (rejecting the promise). Default `true`. Set to `false` for a prompt that must be answered.
+- `className`: A class attribute applied to the prompt's root element (the `<dialog>`).
+- `id`: An id attribute applied to the prompt's root element (the `<dialog>`).
 
 
 ### Use 1: Invoking it with a question without parameters
@@ -176,7 +181,24 @@ prompt( { validate }).then( response => { /* ... */ } )
 
 [![prompt-validate.png](https://i.postimg.cc/jS5nT7hY/prompt-validate.png)](https://postimg.cc/w7Cjc3Pw)
 
-### Use 5: Using the BasicModals global object in a browser's scope
+### Use 5: Custom inputs (multiple fields)
+
+Pass an `inputs` object of pre-built elements (native, or your own components) to replace the single text input. The promise resolves to an object keyed by the same names:
+
+```javascript
+const name = document.createElement('input')
+name.placeholder = 'project name'
+const template = document.createElement('select')
+// ...append <option>s to template...
+
+prompt({ title: 'New project', inputs: { name, template } })
+    .then( ({ name, template }) => { /* ... */ } )
+    .catch( _ => { /* cancelled */ } )
+```
+
+Elements without a `.value` (e.g. a separator) are rendered but excluded from the result. Style the layout through the `.BasicModalsInputs` container (scope it with the modal `className` to target a single modal).
+
+### Use 6: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
@@ -251,11 +273,11 @@ Example:
 }
 ```
 
-Every modal is a children of a "veil" div with one of the following classes: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm` and `BasicModalsVeilPrompt`. You can use this to customize the style of the different modals separately.
+Each modal is a native `<dialog class="BasicModalsBox">` (the `veil` is a `<dialog class="BasicModalsVeil">`), and the dark overlay is its `::backdrop`. To style one kind of modal in particular, pass a `className` and scope your selectors with it:
 
 ```css
-/* this will affect only confirm modals */
-.BasicModalsVeilConfirm .BasicModalsButtonOk:hover: {
+/* this affects only modals opened with className: 'danger' */
+dialog.danger .BasicModalsButtonOk:hover {
     background: red
 }
 ```
