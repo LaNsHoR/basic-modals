@@ -494,7 +494,7 @@ test('prompt inputs with per-field validate object', () => {
 
 test('escape:false prevents the dialog from closing on Escape', () => {
     prompt({ escape: false })
-    const dialog = document.querySelector('dialog.BasicModalsBox')
+    const dialog = document.querySelector('dialog.BasicModalsVeilPrompt')
     const cancel = new Event('cancel', { cancelable: true })
     dialog.dispatchEvent( cancel )
     expect(cancel.defaultPrevented).toBe(true)
@@ -502,7 +502,7 @@ test('escape:false prevents the dialog from closing on Escape', () => {
 
 test('escape is allowed by default (cancel event not prevented)', () => {
     prompt()
-    const dialog = document.querySelector('dialog.BasicModalsBox')
+    const dialog = document.querySelector('dialog.BasicModalsVeilPrompt')
     const cancel = new Event('cancel', { cancelable: true })
     dialog.dispatchEvent( cancel )
     expect(cancel.defaultPrevented).toBe(false)
@@ -519,52 +519,51 @@ test('render veil with text (string)', () => {
     expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(text)
 })
 
-test('render veil with text (object)', () => {
-    const text = 'this is my test text'
-    veil( { text })
-    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(text)
+test('render veil with content (object)', () => {
+    const content = 'this is my test text'
+    veil( { content })
+    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(content)
 })
 
-test('veil returns close method', () => {
-    const close = veil()
+test('veil returns a close method', () => {
+    const { close } = veil()
     expect(document.querySelector('.BasicModalsVeil')).toBeTruthy()
     return close().then( _ => expect(document.querySelector('.BasicModalsVeil')).toBe(null) )
 })
 
-test('veil with custom default text', () => {
-    const text = 'default veil text'
-    defaults.veil.text = text
+test('veil with custom default content', () => {
+    const content = 'default veil text'
+    defaults.veil.content = content
     veil()
-    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(text)
+    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(content)
 })
 
-test('veil with custom overrode default text (string)', () => {
-    const text = 'final veil text'
-    const default_text = 'default veil text'
-    defaults.veil.text = default_text
-    veil(text)
-    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(text)
+test('veil with custom overrode default content (string)', () => {
+    const content = 'final veil text'
+    defaults.veil.content = 'default veil text'
+    veil(content)
+    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(content)
 })
 
-test('veil with custom overrode default text (object)', () => {
-    const text = 'final veil text'
-    const default_text = 'default veil text'
-    defaults.veil.text = default_text
-    veil({text})
-    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(text)
+test('veil with custom overrode default content (object)', () => {
+    const content = 'final veil text'
+    defaults.veil.content = 'default veil text'
+    veil({content})
+    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(content)
 })
 
 test('render veil with partial defaults', () => {
     defaults.veil = {}
     veil()
-    expect(document.querySelector('.BasicModalsVeilText').innerHTML).toBe(defaults_original.veil.text)
+    expect(document.querySelector('.BasicModalsVeil')).toBeTruthy()
+    expect(document.querySelector('.BasicModalsVeilText')).toBe(null)
 })
 
 test('render prompt with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     prompt( { className, id } )
-    const element = document.querySelector('dialog.BasicModalsBox')
+    const element = document.querySelector('dialog.BasicModalsVeilPrompt')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -573,7 +572,7 @@ test('render alert with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     alert( { className, id } )
-    const element = document.querySelector('dialog.BasicModalsBox')
+    const element = document.querySelector('dialog.BasicModalsVeilAlert')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -582,7 +581,7 @@ test('render confirm with classname and id', () => {
     const className = "my_class"
     const id = "my_id"
     confirm( { className, id } )
-    const element = document.querySelector('dialog.BasicModalsBox')
+    const element = document.querySelector('dialog.BasicModalsVeilConfirm')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
 })
@@ -594,4 +593,31 @@ test('render veil with classname and id', () => {
     const element = document.querySelector('dialog.BasicModalsVeil')
     expect(element.classList.contains(className)).toBeTruthy()
     expect(element.id).toBe(id)
+})
+
+test('alert stamps its per-type classes (veil root + box)', () => {
+    alert()
+    expect(document.querySelector('dialog.BasicModalsVeilAlert')).toBeTruthy()
+    expect(document.querySelector('.BasicModalsBox.BasicModalsAlert')).toBeTruthy()
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
+test('confirm stamps its per-type classes (veil root + box)', () => {
+    confirm()
+    expect(document.querySelector('dialog.BasicModalsVeilConfirm')).toBeTruthy()
+    expect(document.querySelector('.BasicModalsBox.BasicModalsConfirm')).toBeTruthy()
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
+test('prompt stamps its per-type classes (veil root + box)', () => {
+    prompt()
+    expect(document.querySelector('dialog.BasicModalsVeilPrompt')).toBeTruthy()
+    expect(document.querySelector('.BasicModalsBox.BasicModalsPrompt')).toBeTruthy()
+    document.querySelector('.BasicModalsButtonOk').click()
+})
+
+test('standalone veil uses BasicModalsVeil and no per-type class', () => {
+    veil()
+    expect(document.querySelector('dialog.BasicModalsVeil')).toBeTruthy()
+    expect(document.querySelector('dialog.BasicModalsVeilAlert')).toBe(null)
 })

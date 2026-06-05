@@ -7,15 +7,23 @@ const defaults = {
     alert:   { message: 'Default Message', button_ok_content: 'Ok', title: null, escape: true },
     confirm: { question: 'Default Question', button_yes_content: 'Yes', button_no_content: 'No', button_cancel_content: null, title: null, escape: true },
     prompt:  { question: 'Default Question', value: '', placeholder: '', button_accept_content: 'Accept', button_cancel_content: 'Cancel', title: null, validate: null, escape: true, inputs: null },
-    veil:    { text: '' }
+    veil:    { content: null, escape: false }
 }
 
 const defaults_original = JSON.parse( JSON.stringify( defaults ) )
 
-// The modal is a native <dialog>: showModal() puts it in the browser top layer (no z-index juggling), and gives us
-// ::backdrop, focus-trap and Escape for free. Fade in/out is pure CSS (@starting-style + allow-discrete, see style.js).
-function build_dialog( { className, id, escape, box_class = 'BasicModalsBox' } ) {
-    const dialog = HTML( 'dialog', { className: box_class }, document.body )
+// veil is the base primitive every modal is built on: a native <dialog> opened with showModal() (browser top layer,
+// native ::backdrop, focus-trap, Escape, centered) with a pure-CSS fade (see style.js). `content` is either a string
+// (rendered as big centered text) or an HTMLElement inserted as-is (a box, a whole modal, anything). It returns
+// { dialog, close, closed }: the dialog element, a close(value) that fades it out + removes it, and `closed`, a
+// promise resolving with the dialog returnValue once it has left the DOM — whether closed via close() or Escape.
+function veil( options = {} ) {
+    const parameters = typeof options == 'string' ? { content: options } : options
+    const { content, className, id, escape, veil_class } = { ...defaults_original.veil, ...defaults.veil, ...parameters }
+
+    // veil_class lets the modals built on top of veil keep their own root class (BasicModalsVeilAlert/Confirm/Prompt)
+    // rather than a shared BasicModalsVeil — matching the pre-2.0.0 DOM where each modal had its own veil class
+    const dialog = HTML( 'dialog', { className: veil_class || 'BasicModalsVeil' }, document.body )
 
     if( className )
         dialog.classList.add( className )
@@ -23,7 +31,7 @@ function build_dialog( { className, id, escape, box_class = 'BasicModalsBox' } )
     if( id )
         dialog.id = id
 
-    // Escape fires the dialog 'cancel' event before closing; block it when escape is disabled so the modal stays open
+    // Escape fires the dialog 'cancel' event before closing; block it when escape is disabled
     dialog.addEventListener( 'cancel', event => {
         if( ! escape )
             event.preventDefault()
@@ -31,68 +39,78 @@ function build_dialog( { className, id, escape, box_class = 'BasicModalsBox' } )
 
     dialog.showModal()
 
-    return dialog
+    if( typeof content == 'string' )
+        HTML( 'div', { className: 'BasicModalsVeilText' }, dialog, content )
+    else if( content )
+        dialog.appendChild( content )
+
+    const closed = new Promise( done => {
+        dialog.addEventListener( 'close', () => {
+            // the CSS fade-out plays via :not([open]); remove the node and resolve once it's done
+            const duration = parseFloat( getComputedStyle( dialog ).transitionDuration ) * 1000 || 0
+            setTimeout( () => { dialog.remove(); done( dialog.returnValue ) }, duration )
+        }, { once: true } )
+    } )
+
+    const close = value => {
+        dialog.close( value )
+        return closed
+    }
+
+    return { dialog, close, closed }
 }
 
-// Settle the promise when the dialog closes — whether a button called dialog.close(value) or Escape closed it with ''.
-// Then the CSS fade-out plays (driven by :not([open])) and we remove the node once the transition is over.
-function on_dialog_close( dialog, settle ) {
-    dialog.addEventListener( 'close', () => {
-        // the CSS fade-out plays via :not([open]); once it's done, remove the node and THEN settle — matching the old
-        // fade_out-then-resolve order so a caller awaiting the promise sees the modal already gone from the DOM
-        const duration = parseFloat( getComputedStyle( dialog ).transitionDuration ) * 1000 || 0
-        setTimeout( () => {
-            dialog.remove()
-            settle( dialog.returnValue )
-        }, duration )
-    }, { once: true } )
+// build the white box every dialog modal shows, and stamp the per-type classes on BOTH the box (BasicModals<Type>)
+// and the veil root (BasicModalsVeil<Type>) so each kind can be styled independently. Returns the box + veil handles.
+function build_modal( type, { title, className, id, escape } ) {
+    const box = HTML( 'div', { className: `BasicModalsBox BasicModals${type}` } )
+    HTML( 'div', { className: 'BasicModalsTitle' }, box, title )
+    const handles = veil( { content: box, className, id, escape, veil_class: `BasicModalsVeil${type}` } )
+    handles.box = box
+    return handles
 }
 
 function alert( options = {} ) {
     const parameters = typeof options == 'string' ? { message: options } : options
     const { message, button_ok_content, title, className, id, escape } = { ...defaults_original.alert, ...defaults.alert, ...parameters }
 
-    const dialog    = build_dialog( { className, id, escape } )
-                      HTML( 'div', { className: 'BasicModalsTitle' }, dialog, title )
-                      HTML( 'div', { className: 'BasicModalsContent' }, dialog, message )
-    const line      = HTML( 'div', { className: 'BasicModalsLineAlert' }, dialog )
+    const { box, close, closed } = build_modal( 'Alert', { title, className, id, escape } )
+                      HTML( 'div', { className: 'BasicModalsContent' }, box, message )
+    const line      = HTML( 'div', { className: 'BasicModalsLineAlert' }, box )
     const button_ok = HTML( 'button', { className: 'BasicModalsButtonOk' }, line, button_ok_content )
 
-    button_ok.onclick = () => dialog.close( 'ok' )
+    button_ok.onclick = () => close( 'ok' )
     button_ok.focus()
 
     // any close (button or Escape) resolves — alert has nothing to cancel
-    return new Promise( resolve => on_dialog_close( dialog, () => resolve() ) )
+    return closed.then( () => undefined )
 }
 
 function confirm( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
     const { question, button_yes_content, button_no_content, button_cancel_content, title, className, id, escape } = { ...defaults_original.confirm, ...defaults.confirm, ...parameters }
 
-    const dialog = build_dialog( { className, id, escape } )
-                   HTML( 'div', { className: 'BasicModalsTitle' }, dialog, title )
-                   HTML( 'div', { className: 'BasicModalsContent' }, dialog, question )
-    const line   = HTML( 'div', { className: 'BasicModalsLineConfirm' }, dialog )
+    const { box, close, closed } = build_modal( 'Confirm', { title, className, id, escape } )
+                   HTML( 'div', { className: 'BasicModalsContent' }, box, question )
+    const line   = HTML( 'div', { className: 'BasicModalsLineConfirm' }, box )
 
     if( button_cancel_content )
-        HTML( 'button', { className: 'BasicModalsButtonCancel' }, line, button_cancel_content ).onclick = () => dialog.close( 'cancel' )
+        HTML( 'button', { className: 'BasicModalsButtonCancel' }, line, button_cancel_content ).onclick = () => close( 'cancel' )
 
-    HTML( 'button', { className: 'BasicModalsButtonNo' }, line, button_no_content ).onclick = () => dialog.close( 'no' )
+    HTML( 'button', { className: 'BasicModalsButtonNo' }, line, button_no_content ).onclick = () => close( 'no' )
 
     const button_yes = HTML( 'button', { className: 'BasicModalsButtonOk' }, line, button_yes_content )
-    button_yes.onclick = () => dialog.close( 'yes' )
+    button_yes.onclick = () => close( 'yes' )
     button_yes.focus()
 
-    return new Promise( ( resolve, reject ) => {
-        on_dialog_close( dialog, value => {
-            if( value == 'yes' )
-                return resolve( true )
-            if( value == 'no' )
-                return resolve( false )
-            // 'cancel' button, or Escape (returnValue ''): reject only when a cancel affordance exists; otherwise treat
-            // the dismissal as a soft "no" so callers without a .catch don't get an unhandled rejection
-            button_cancel_content ? reject() : resolve( false )
-        } )
+    return closed.then( value => {
+        if( value == 'yes' )
+            return true
+        if( value == 'no' )
+            return false
+        // 'cancel' button, or Escape (returnValue ''): reject only when a cancel affordance exists; otherwise treat
+        // the dismissal as a soft "no" so callers without a .catch don't get an unhandled rejection
+        return button_cancel_content ? Promise.reject() : false
     } )
 }
 
@@ -100,8 +118,7 @@ function prompt( options = {} ) {
     const parameters = typeof options == 'string' ? { question: options } : options
     const { question, value, placeholder, button_accept_content, button_cancel_content, title, validate, className, id, escape, inputs } = { ...defaults_original.prompt, ...defaults.prompt, ...parameters }
 
-    const dialog = build_dialog( { className, id, escape } )
-                   HTML( 'div', { className: 'BasicModalsTitle' }, dialog, title )
+    const { box, close, closed } = build_modal( 'Prompt', { title, className, id, escape } )
 
     // fields that take part in the result + validation: { name: element-with-a-value }
     const fields = {}
@@ -110,7 +127,7 @@ function prompt( options = {} ) {
     if( inputs ) {
         // custom inputs replace the classic question+input. Every element is rendered, but only those exposing a
         // .value join the result/validation, so non-input extras (separators, labels) can be passed through harmlessly
-        const container = HTML( 'div', { className: 'BasicModalsInputs' }, dialog )
+        const container = HTML( 'div', { className: 'BasicModalsInputs' }, box )
         Object.entries( inputs ).forEach( ([ name, element ]) => {
             container.appendChild( element )
             if( element.value !== undefined )
@@ -118,12 +135,12 @@ function prompt( options = {} ) {
         } )
     }
     else {
-        HTML( 'div', { className: 'BasicModalsContent' }, dialog, question )
-        response = HTML( 'input', { className: 'BasicModalsInput', type: 'text', id: 'PromptResponse', value, placeholder }, dialog )
+        HTML( 'div', { className: 'BasicModalsContent' }, box, question )
+        response = HTML( 'input', { className: 'BasicModalsInput', type: 'text', id: 'PromptResponse', value, placeholder }, box )
         fields.value = response
     }
 
-    const line          = HTML( 'div', { className: 'BasicModalsLinePrompt' }, dialog )
+    const line          = HTML( 'div', { className: 'BasicModalsLinePrompt' }, box )
     const button_cancel = HTML( 'button', { className: 'BasicModalsButtonCancel' }, line, button_cancel_content )
     const button_accept = HTML( 'button', { className: 'BasicModalsButtonOk' }, line, button_accept_content )
     const error_message = HTML( 'div', { className: 'BasicModalsErrorMessage' }, line )
@@ -166,36 +183,19 @@ function prompt( options = {} ) {
     if( first )
         first.onkeydown = event => { event.key == 'Enter' && button_accept.click() }
 
-    button_accept.onclick = () => dialog.close( 'accept' )
-    button_cancel.onclick = () => dialog.close( 'cancel' )
+    button_accept.onclick = () => close( 'accept' )
+    button_cancel.onclick = () => close( 'cancel' )
 
-    return new Promise( ( resolve, reject ) => {
-        on_dialog_close( dialog, closed => {
-            if( closed != 'accept' )
-                return reject()
-            // with custom inputs resolve an object { name: value }; otherwise the legacy single string
-            if( ! inputs )
-                return resolve( response.value )
-            const result = {}
-            for( const name in fields )
-                result[name] = fields[name].value
-            resolve( result )
-        } )
-    } )
-}
-
-function veil( options = {} ) {
-    const parameters = typeof options == 'string' ? { text: options } : options
-    const { text, className, id } = { ...defaults_original.veil, ...defaults.veil, ...parameters }
-
-    // veil is a blocking full-screen overlay: no box chrome, no buttons, not escapable. Returns a close function.
-    const dialog = build_dialog( { className, id, escape: false, box_class: 'BasicModalsVeil' } )
-    HTML( 'div', { className: 'BasicModalsVeilText' }, dialog, text )
-
-    return () => new Promise( done => {
-        const duration = parseFloat( getComputedStyle( dialog ).transitionDuration ) * 1000 || 0
-        dialog.addEventListener( 'close', () => setTimeout( () => { dialog.remove(); done() }, duration ), { once: true } )
-        dialog.close()
+    return closed.then( value => {
+        if( value != 'accept' )
+            return Promise.reject()
+        // with custom inputs resolve an object { name: value }; otherwise the legacy single string
+        if( ! inputs )
+            return response.value
+        const result = {}
+        for( const name in fields )
+            result[name] = fields[name].value
+        return result
     } )
 }
 

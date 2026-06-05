@@ -1,71 +1,72 @@
 const blue = '#90d0f6';
 
-// fade for the dialog and its ::backdrop: opacity is the visible animation; display + overlay use allow-discrete so
-// the dialog stays rendered (and in the top layer) through the close transition instead of snapping away. The fade-in
-// starting state lives in the @starting-style block below.
+// fade for the veil and its ::backdrop: opacity is the visible animation; display + overlay use allow-discrete so the
+// dialog stays rendered (and in the top layer) through the close transition. The fade-in starting state is below.
 const fade = 'opacity 0.3s ease, display 0.3s allow-discrete, overlay 0.3s allow-discrete';
 
+// every modal's root is a veil <dialog>: the standalone veil is .BasicModalsVeil, and alert/confirm/prompt each use
+// their own .BasicModalsVeil<Type> (kept separate, pre-2.0.0 style, so each kind can be themed independently). The
+// shared overlay rules below target all four through veils(), so authors still get one consistent overlay + backdrop.
+const veil_classes = [ 'BasicModalsVeil', 'BasicModalsVeilAlert', 'BasicModalsVeilConfirm', 'BasicModalsVeilPrompt' ];
+const veils = ( suffix = '' ) => veil_classes.map( veil_class => `dialog.${veil_class}${suffix}` ).join( ', ' );
+
 const style = {
-    // the modal box is now the <dialog> itself (showModal puts it in the top layer + centers it)
-    'dialog.BasicModalsBox': {
+    // the base overlay: a transparent, full-screen <dialog> in the top layer that centers its content (text or a box)
+    [veils()]: {
+        margin: 0,
+        border: 0,
+        padding: 0,
+        width: '100%',
+        height: '100%',
+        maxWidth: 'none',
+        maxHeight: 'none',
+        background: 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: 1,
+        transition: fade
+    },
+
+    [veils( '[open]' )]: {
+        display: 'flex'
+    },
+
+    [veils( ':not([open])' )]: {
+        opacity: 0
+    },
+
+    [veils( '::backdrop' )]: {
+        background: 'rgba(0, 0, 0, 0.5)',
+        opacity: 1,
+        transition: fade
+    },
+
+    [veils( ':not([open])::backdrop' )]: {
+        opacity: 0
+    },
+
+    // fade-in: the state the veil + backdrop animate FROM the first time they're shown
+    '@starting-style': {
+        [veils( '[open]' )]: {
+            opacity: 0
+        },
+        [veils( '[open]::backdrop' )]: {
+            opacity: 0
+        }
+    },
+
+    // the white card shown by alert/confirm/prompt — a child of the veil
+    '.BasicModalsBox': {
         padding: '10px',
         borderRadius: '5px',
-        border: 0,
         boxShadow: '5px 5px 5px #555',
         background: 'white',
         color: '#333',
         fontFamily: 'sans-serif',
         width: '50%',
         maxWidth: '400px',
-        flexDirection: 'column',
-        opacity: 1,
-        transition: fade
-    },
-
-    'dialog.BasicModalsBox[open]': {
-        display: 'flex'
-    },
-
-    'dialog.BasicModalsBox:not([open])': {
-        opacity: 0
-    },
-
-    // veil: a blocking overlay with big centered text and no box chrome (transparent dialog over the dark backdrop)
-    'dialog.BasicModalsVeil': {
-        border: 0,
-        padding: 0,
-        background: 'none',
-        maxWidth: 'none',
-        opacity: 1,
-        transition: fade
-    },
-
-    'dialog.BasicModalsVeil[open]': {
-        display: 'flex'
-    },
-
-    'dialog.BasicModalsVeil:not([open])': {
-        opacity: 0
-    },
-
-    'dialog.BasicModalsBox::backdrop, dialog.BasicModalsVeil::backdrop': {
-        background: 'rgba(0, 0, 0, 0.5)',
-        opacity: 1,
-        transition: fade
-    },
-
-    'dialog.BasicModalsBox:not([open])::backdrop, dialog.BasicModalsVeil:not([open])::backdrop': {
-        opacity: 0
-    },
-
-    // fade-in: the state the dialog/backdrop animate FROM the first time they're shown
-    '@starting-style': {
-        'dialog.BasicModalsBox[open], dialog.BasicModalsVeil[open]': {
-            opacity: 0
-        },
-        'dialog.BasicModalsBox[open]::backdrop, dialog.BasicModalsVeil[open]::backdrop': {
-            opacity: 0
-        }
+        display: 'flex',
+        flexDirection: 'column'
     },
 
     '.BasicModalsVeilText': {

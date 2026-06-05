@@ -2,7 +2,6 @@
 
 An ultra lightweight set of promise based HTML modals: `prompt`, `alert`, `confirm` and `veil`.
 
-> **v2.0.0** — modals are now rendered with the native `<dialog>` element: top layer (no z-index juggling), native `::backdrop`, focus-trap and Escape-to-close come for free. This is a breaking, structural change (see *Adding custom styles*). `prompt` also gains a custom `inputs` option, and every modal an `escape` toggle.
 
 # Install
 
@@ -208,15 +207,24 @@ Elements without a `.value` (e.g. a separator) are rendered but excluded from th
 
 ## Veil
 
-An empty veil to block the viewport. It returns a function which will remove the veil when called.
+The veil is the base primitive every other modal is built on: a full-screen native `<dialog>` (opened with `showModal()`, so it lives in the browser's top layer with a real `::backdrop`, focus-trap and Escape support) that fades in/out and centers whatever you put inside it. `alert`, `confirm` and `prompt` are just a veil with a box of content.
 
 ### Parameter list
 
 This is the parameter list accepted by `veil`. All of them are optional.
 
-- `text`: Text content. The default value is '' (empty string).
-- `className`: A class attribute applied to the veil's root element.
-- `id`: An id attribute applied to the veil's root element.
+- `content`: Either a string (rendered as big centered text — the classic "loading…" veil) or any `HTMLElement` inserted as-is (a box, a whole custom modal, anything). Default `null` (an empty, transparent veil).
+- `escape`: Whether pressing Escape closes the veil. Default `false` (a veil usually blocks the viewport until you close it yourself).
+- `className`: A class attribute applied to the veil's root element (the `<dialog>`).
+- `id`: An id attribute applied to the veil's root element (the `<dialog>`).
+
+### Return value
+
+Unlike the other modals (which return a promise), `veil` returns an object `{ dialog, close, closed }`:
+
+- `dialog`: the `<dialog>` element.
+- `close( value )`: fades the veil out, removes it from the DOM and returns the `closed` promise. The optional `value` becomes the dialog's return value.
+- `closed`: a promise that resolves (with the dialog's return value) once the veil has finished its fade-out and left the DOM — whether it was closed via `close()` or Escape.
 
 ### Use 1: Invoking it and closing it after 3 seconds
 
@@ -224,7 +232,7 @@ This is the parameter list accepted by `veil`. All of them are optional.
 const { veil } = require('basic-modals')
 
 // render the veil
-const close = veil()
+const { close } = veil()
 // remove the veil after 3 seconds
 setTimeout( close, 3000)
 ```
@@ -232,31 +240,42 @@ setTimeout( close, 3000)
 ### Use 2: Adding some text to the veil
 
 ```javascript
-const close = veil('some text here')
+const { close } = veil('some text here')
 setTimeout( close, 3000)
 ```
 
 or
 
 ```javascript
-const close = veil({ text : 'some text here' })
+const { close } = veil({ content: 'some text here' })
 setTimeout( close, 3000)
 ```
 
-### Use 3: The "close method" returns a promise
+### Use 3: Putting your own element in the veil
 
-When calling close the veil won't be removed immediately, it will be removed asynchronously once a fade out transition ends. If you need to know when the veil is removed from the DOM you can use the promise returned by the close method.
+Because `content` accepts any element, the veil doubles as the overlay for your own custom modals:
 
 ```javascript
-const close = veil()
+const box = document.createElement('div')
+box.innerHTML = '<h1>My custom modal</h1>'
+const { close, closed } = veil({ content: box })
+closed.then( _ => console.log('the veil is gone') )
+```
+
+### Use 4: Knowing when the veil is gone
+
+When you call `close` the veil isn't removed immediately: it plays a fade-out transition first. Use the returned `closed` promise (or the one `close()` itself returns) to know when it has actually left the DOM.
+
+```javascript
+const { close } = veil()
 close().then( _ => do_something() )
 ```
 
-### Use 4: Using the BasicModals global object in a browser's scope
+### Use 5: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
-    const close = BasicModals.veil( { text: 'loading... please wait' } )
+    const { close } = BasicModals.veil( { content: 'loading... please wait' } )
 </script>
 ```
 
@@ -273,9 +292,14 @@ Example:
 }
 ```
 
-Each modal is a native `<dialog class="BasicModalsBox">` (the `veil` is a `<dialog class="BasicModalsVeil">`), and the dark overlay is its `::backdrop`. To style one kind of modal in particular, pass a `className` and scope your selectors with it:
+Every modal is a native `<dialog>` whose dark overlay is its `::backdrop`. The root `<dialog>` carries a per-type class so each kind can be themed independently: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm`, `BasicModalsVeilPrompt`, and `BasicModalsVeil` for the standalone veil. Inside, alert/confirm/prompt render a `<div class="BasicModalsBox BasicModals<Type>">` card (`BasicModalsAlert`, `BasicModalsConfirm`, `BasicModalsPrompt`). To style one kind in particular target its class, or pass a `className` and scope your selectors with it:
 
 ```css
+/* restyle every confirm's card */
+.BasicModalsConfirm {
+    border: 2px solid red
+}
+
 /* this affects only modals opened with className: 'danger' */
 dialog.danger .BasicModalsButtonOk:hover {
     background: red
@@ -346,8 +370,8 @@ defaults.confirm.button_no_content = 'Nope'
    single line, overriding the original default objects */
 defaults.prompt = { question:'¿?', button_cancel_content: 'Back' }
 
-// setting a default for the veil text
-defaults.veil.text = 'loading'
+// setting a default for the veil content
+defaults.veil.content = 'loading'
 
 // setting a default for the validate function
 defaults.prompt.validate = value => global_validator( value )
