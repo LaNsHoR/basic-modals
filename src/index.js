@@ -7,7 +7,10 @@ let styles_injected = false
 function inject_styles() {
     if( styles_injected || typeof document == 'undefined' )
         return
-    CSS( style )
+    // wrap the defaults in a named cascade layer: lazy injection means this stylesheet lands AFTER a consumer's own
+    // stylesheet, so equal-specificity overrides of .BasicModals* would otherwise lose on source order. An unlayered
+    // rule always outranks a layered one, so @layer keeps the defaults overridable regardless of injection order.
+    CSS( { '@layer basic-modals': style } )
     styles_injected = true
 }
 

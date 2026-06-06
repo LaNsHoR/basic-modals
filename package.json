@@ -1,6 +1,6 @@
 {
   "name": "basic-modals",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A basic and ultra lightweight set of promise based HTML modals (prompt, alert, confirm, veil).",
   "main": "src/index.js",
   "exports": {

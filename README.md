@@ -283,7 +283,7 @@ close().then( _ => do_something() )
 
 # Adding custom styles
 
-This package will add a style tag with the modal's CSS in your head section. The classes are prefixed by `.BasicModals` and they should be self-explanatory, so you can add your own CSS selectors for those classes in your CSS and override / expand the default style.
+This package adds a `<style>` tag with the modal's CSS to your `<head>`, wrapped in a `@layer basic-modals` cascade layer. The classes are prefixed by `.BasicModals` and they should be self-explanatory, so you can add your own CSS selectors for those classes in your CSS and override / expand the default style.
 
 Example:
 
@@ -308,15 +308,7 @@ dialog.danger .BasicModalsButtonOk:hover {
 }
 ```
 
-**TIP**: If you need to increase the specificity of your selectors to override the default ones, just use a body tag before your selector:
-
-```css
-body .BasicModalsButtonOk:hover {
-    background: red
-}
-```
-
-or any redundant selector fragment to increase the specificity.
+Because the defaults live in a cascade layer, you don't need to fight specificity or worry about load order: **any of your own (unlayered) rules win over the defaults automatically** — even a lower-specificity one, and even if your stylesheet is injected before this package's.
 
 # Adding default values
 
