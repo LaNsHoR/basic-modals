@@ -22,8 +22,9 @@ This is the parameter list accepted by `alert`. All of them are optional.
 - `message`: Text content. The default value is "Default Message".
 - `button_ok_content`: Text for the "ok button". Default value is "Ok".
 - `title`: A title on the top of the modal. By default alert modals don't have any title.
-- `className`: A class attribute applied to the alert's root element.
-- `id`: An id attribute applied to the alert's root element.
+- `escape`: Whether pressing Escape closes the modal. Default `true`.
+- `className`: A class attribute applied to the alert's root element (the `<dialog>`).
+- `id`: An id attribute applied to the alert's root element (the `<dialog>`).
 
 ### Use 1: Invoking it with a message without parameters
 
@@ -67,8 +68,9 @@ This is the parameter list accepted by `confirm`. All of them are optional.
 - `button_no_content`: Text for the "no button". Default value is "No".
 - `button_cancel_content`: Text for the "cancel button". Default value is null. By default confirm modals don't have a cancel button.
 - `title`: A title on the top of the modal. By default confirm modals don't have any title.
-- `className`: A class attribute applied to the confirm's root element.
-- `id`: An id attribute applied to the confirm's root element.
+- `escape`: Whether pressing Escape dismisses the modal. Default `true`. A dismissal rejects the promise when a cancel button is present, otherwise it resolves to `false`.
+- `className`: A class attribute applied to the confirm's root element (the `<dialog>`).
+- `id`: An id attribute applied to the confirm's root element (the `<dialog>`).
 
 ### Use 1: Invoking it with a question without parameters
 
@@ -123,14 +125,16 @@ This is the parameter list accepted by `prompt`. All of them are optional.
 - `question`: Text content for the question. Default value is "Default Question".
 - `value`: Default value in place for the input text box. Default value is '' (empty string).
 - `placeholder`: Placeholder value for the input text box. Default value is '' (empty string).
-- `button_accept_content`: Text for the "yes button". Default value is "Accept".
+- `button_accept_content`: Text for the "accept button". Default value is "Accept".
 - `button_cancel_content`: Text for the "cancel button". Default value is "Cancel".
-- `title`: A title on the top of the modal. Ny default prompt modals don't have any title.
-- `validate`: A function to validate the input with each key press. This function will receive the value of the input field as first parameter, if the function returns...
-    - **An empty string**: The input will be considered as valid, the modal will allow to the user clicks on the accept button.
-    - **A non empty string**: The input won't be considered as valid, an error message will be displayed and the accept button will be disabled.
-- `className`: A class attribute applied to the prompt's root element.
-- `id`: An id attribute applied to the prompt's root element.
+- `title`: A title on the top of the modal. By default prompt modals don't have any title.
+- `validate`: Either a single function applied to every field, or an object `{ fieldName: fn }` applying a validator per named field (useful with `inputs`). Each validator receives the field value and returns...
+    - **An empty string**: The field is valid; the accept button is enabled.
+    - **A non empty string**: The field is invalid; the message is displayed and the accept button is disabled.
+- `inputs`: An object `{ name: HTMLElement }` of pre-built elements that REPLACE the classic question + text input. Every element is rendered (wrapped in a `.BasicModalsInputs` container); those exposing a `.value` become result fields, while extras without a value (separators, labels) are rendered but ignored. When `inputs` is used the promise resolves to an object `{ name: value }` instead of a single string.
+- `escape`: Whether pressing Escape dismisses the modal (rejecting the promise). Default `true`. Set to `false` for a prompt that must be answered.
+- `className`: A class attribute applied to the prompt's root element (the `<dialog>`).
+- `id`: An id attribute applied to the prompt's root element (the `<dialog>`).
 
 
 ### Use 1: Invoking it with a question without parameters
@@ -144,10 +148,12 @@ prompt("what's your name?")
 
 ### Use 2: Catching when the user closes the modal
 
+When the prompt is dismissed the promise rejects with a reason: `'cancel'` if the cancel button was clicked, or `'escape'` if it was closed with the Escape key.
+
 ```javascript
 prompt("what's your name?")
     .then( name => console.log(`The user's name is ${name}`) )
-    .catch( _ => console.warning('The user closed the modal') )
+    .catch( reason => console.warn(`The user closed the modal (${reason})`) )
 ```
 
 ### Use 3: Customizing button texts, add a default response and placeholder
@@ -176,7 +182,24 @@ prompt( { validate }).then( response => { /* ... */ } )
 
 [![prompt-validate.png](https://i.postimg.cc/jS5nT7hY/prompt-validate.png)](https://postimg.cc/w7Cjc3Pw)
 
-### Use 5: Using the BasicModals global object in a browser's scope
+### Use 5: Custom inputs (multiple fields)
+
+Pass an `inputs` object of pre-built elements (native, or your own components) to replace the single text input. The promise resolves to an object keyed by the same names:
+
+```javascript
+const name = document.createElement('input')
+name.placeholder = 'project name'
+const template = document.createElement('select')
+// ...append <option>s to template...
+
+prompt({ title: 'New project', inputs: { name, template } })
+    .then( ({ name, template }) => { /* ... */ } )
+    .catch( _ => { /* cancelled */ } )
+```
+
+Elements without a `.value` (e.g. a separator) are rendered but excluded from the result. Style the layout through the `.BasicModalsInputs` container (scope it with the modal `className` to target a single modal).
+
+### Use 6: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
@@ -186,15 +209,24 @@ prompt( { validate }).then( response => { /* ... */ } )
 
 ## Veil
 
-An empty veil to block the viewport. It returns a function which will remove the veil when called.
+The veil is the base primitive every other modal is built on: a full-screen native `<dialog>` (opened with `showModal()`, so it lives in the browser's top layer with a real `::backdrop`, focus-trap and Escape support) that fades in/out and centers whatever you put inside it. `alert`, `confirm` and `prompt` are just a veil with a box of content.
 
 ### Parameter list
 
 This is the parameter list accepted by `veil`. All of them are optional.
 
-- `text`: Text content. The default value is '' (empty string).
-- `className`: A class attribute applied to the veil's root element.
-- `id`: An id attribute applied to the veil's root element.
+- `content`: Either a string (rendered as big centered text — the classic "loading…" veil) or any `HTMLElement` inserted as-is (a box, a whole custom modal, anything). Default `null` (an empty, transparent veil).
+- `escape`: Whether pressing Escape closes the veil. Default `false` (a veil usually blocks the viewport until you close it yourself).
+- `className`: A class attribute applied to the veil's root element (the `<dialog>`).
+- `id`: An id attribute applied to the veil's root element (the `<dialog>`).
+
+### Return value
+
+Unlike the other modals (which return a promise), `veil` returns an object `{ dialog, close, closed }`:
+
+- `dialog`: the `<dialog>` element.
+- `close( value )`: fades the veil out, removes it from the DOM and returns the `closed` promise. The optional `value` becomes the dialog's return value.
+- `closed`: a promise that resolves (with the dialog's return value) once the veil has finished its fade-out and left the DOM — whether it was closed via `close()` or Escape.
 
 ### Use 1: Invoking it and closing it after 3 seconds
 
@@ -202,7 +234,7 @@ This is the parameter list accepted by `veil`. All of them are optional.
 const { veil } = require('basic-modals')
 
 // render the veil
-const close = veil()
+const { close } = veil()
 // remove the veil after 3 seconds
 setTimeout( close, 3000)
 ```
@@ -210,31 +242,42 @@ setTimeout( close, 3000)
 ### Use 2: Adding some text to the veil
 
 ```javascript
-const close = veil('some text here')
+const { close } = veil('some text here')
 setTimeout( close, 3000)
 ```
 
 or
 
 ```javascript
-const close = veil({ text : 'some text here' })
+const { close } = veil({ content: 'some text here' })
 setTimeout( close, 3000)
 ```
 
-### Use 3: The "close method" returns a promise
+### Use 3: Putting your own element in the veil
 
-When calling close the veil won't be removed immediately, it will be removed asynchronously once a fade out transition ends. If you need to know when the veil is removed from the DOM you can use the promise returned by the close method.
+Because `content` accepts any element, the veil doubles as the overlay for your own custom modals:
 
 ```javascript
-const close = veil()
+const box = document.createElement('div')
+box.innerHTML = '<h1>My custom modal</h1>'
+const { close, closed } = veil({ content: box })
+closed.then( _ => console.log('the veil is gone') )
+```
+
+### Use 4: Knowing when the veil is gone
+
+When you call `close` the veil isn't removed immediately: it plays a fade-out transition first. Use the returned `closed` promise (or the one `close()` itself returns) to know when it has actually left the DOM.
+
+```javascript
+const { close } = veil()
 close().then( _ => do_something() )
 ```
 
-### Use 4: Using the BasicModals global object in a browser's scope
+### Use 5: Using the BasicModals global object in a browser's scope
 
 ```html
 <script>
-    const close = BasicModals.veil( { text: 'loading... please wait' } )
+    const { close } = BasicModals.veil( { content: 'loading... please wait' } )
 </script>
 ```
 
@@ -246,16 +289,21 @@ Example:
 
 ```css
 /* This will turn the Ok button red for all the modals */
-.BasicModalsButtonOk:hover: {
+.BasicModalsButtonOk:hover {
     background: red
 }
 ```
 
-Every modal is a children of a "veil" div with one of the following classes: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm` and `BasicModalsVeilPrompt`. You can use this to customize the style of the different modals separately.
+Every modal is a native `<dialog>` whose dark overlay is its `::backdrop`. The root `<dialog>` carries a per-type class so each kind can be themed independently: `BasicModalsVeilAlert`, `BasicModalsVeilConfirm`, `BasicModalsVeilPrompt`, and `BasicModalsVeil` for the standalone veil. Inside, alert/confirm/prompt render a `<div class="BasicModalsBox BasicModals<Type>">` card (`BasicModalsAlert`, `BasicModalsConfirm`, `BasicModalsPrompt`). To style one kind in particular target its class, or pass a `className` and scope your selectors with it:
 
 ```css
-/* this will affect only confirm modals */
-.BasicModalsVeilConfirm .BasicModalsButtonOk:hover: {
+/* restyle every confirm's card */
+.BasicModalsConfirm {
+    border: 2px solid red
+}
+
+/* this affects only modals opened with className: 'danger' */
+dialog.danger .BasicModalsButtonOk:hover {
     background: red
 }
 ```
@@ -263,7 +311,7 @@ Every modal is a children of a "veil" div with one of the following classes: `Ba
 **TIP**: If you need to increase the specificity of your selectors to override the default ones, just use a body tag before your selector:
 
 ```css
-body .BasicModalsButtonOk:hover: {
+body .BasicModalsButtonOk:hover {
     background: red
 }
 ```
@@ -324,8 +372,8 @@ defaults.confirm.button_no_content = 'Nope'
    single line, overriding the original default objects */
 defaults.prompt = { question:'¿?', button_cancel_content: 'Back' }
 
-// setting a default for the veil text
-defaults.veil.text = 'loading'
+// setting a default for the veil content
+defaults.veil.content = 'loading'
 
 // setting a default for the validate function
 defaults.prompt.validate = value => global_validator( value )

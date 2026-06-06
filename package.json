@@ -1,8 +1,17 @@
 {
   "name": "basic-modals",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A basic and ultra lightweight set of promise based HTML modals (prompt, alert, confirm, veil).",
   "main": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
   "scripts": {
     "start:dev": "webpack serve",
     "test": "jest --collect-coverage"
@@ -24,9 +33,6 @@
     "url": "https://github.com/LaNsHoR/basic-modals/issues"
   },
   "homepage": "https://github.com/LaNsHoR/basic-modals#readme",
-  "dependencies": {
-    "html-css-builder": "^0.1.8"
-  },
   "devDependencies": {
     "jest": "^29.0.2",
     "jest-environment-jsdom": "^29.0.2",
@@ -36,5 +42,8 @@
   },
   "jest": {
     "coverageDirectory": "tests/coverage"
+  },
+  "dependencies": {
+    "html-css-builder": "^0.2.0"
   }
 }
