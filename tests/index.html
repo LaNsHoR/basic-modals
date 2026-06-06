@@ -67,12 +67,12 @@
             }
 
             const show_veil = () => {
-                const close = BasicModals.veil()
+                const { close } = BasicModals.veil()
                 setTimeout( close, 2000 )
             }
 
             const show_veil_text = text => {
-                const close = BasicModals.veil( {text} )
+                const { close } = BasicModals.veil( { content: text } )
                 setTimeout( close, 2000 )
             }
         </script>

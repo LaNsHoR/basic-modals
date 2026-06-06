@@ -125,9 +125,9 @@ This is the parameter list accepted by `prompt`. All of them are optional.
 - `question`: Text content for the question. Default value is "Default Question".
 - `value`: Default value in place for the input text box. Default value is '' (empty string).
 - `placeholder`: Placeholder value for the input text box. Default value is '' (empty string).
-- `button_accept_content`: Text for the "yes button". Default value is "Accept".
+- `button_accept_content`: Text for the "accept button". Default value is "Accept".
 - `button_cancel_content`: Text for the "cancel button". Default value is "Cancel".
-- `title`: A title on the top of the modal. Ny default prompt modals don't have any title.
+- `title`: A title on the top of the modal. By default prompt modals don't have any title.
 - `validate`: Either a single function applied to every field, or an object `{ fieldName: fn }` applying a validator per named field (useful with `inputs`). Each validator receives the field value and returns...
     - **An empty string**: The field is valid; the accept button is enabled.
     - **A non empty string**: The field is invalid; the message is displayed and the accept button is disabled.
@@ -148,10 +148,12 @@ prompt("what's your name?")
 
 ### Use 2: Catching when the user closes the modal
 
+When the prompt is dismissed the promise rejects with a reason: `'cancel'` if the cancel button was clicked, or `'escape'` if it was closed with the Escape key.
+
 ```javascript
 prompt("what's your name?")
     .then( name => console.log(`The user's name is ${name}`) )
-    .catch( _ => console.warning('The user closed the modal') )
+    .catch( reason => console.warn(`The user closed the modal (${reason})`) )
 ```
 
 ### Use 3: Customizing button texts, add a default response and placeholder
@@ -287,7 +289,7 @@ Example:
 
 ```css
 /* This will turn the Ok button red for all the modals */
-.BasicModalsButtonOk:hover: {
+.BasicModalsButtonOk:hover {
     background: red
 }
 ```
@@ -309,7 +311,7 @@ dialog.danger .BasicModalsButtonOk:hover {
 **TIP**: If you need to increase the specificity of your selectors to override the default ones, just use a body tag before your selector:
 
 ```css
-body .BasicModalsButtonOk:hover: {
+body .BasicModalsButtonOk:hover {
     background: red
 }
 ```

@@ -1,7 +1,15 @@
 const { HTML, CSS } = require('html-css-builder')
 const { style } = require('./style')
 
-CSS( style )
+// inject the stylesheet lazily on first modal open, guarded so importing the module in a non-DOM environment
+// (SSR: plain Node, Next, Remix) doesn't crash. It runs once; module caching keeps styles_injected across calls.
+let styles_injected = false
+function inject_styles() {
+    if( styles_injected || typeof document == 'undefined' )
+        return
+    CSS( style )
+    styles_injected = true
+}
 
 const defaults = {
     alert:   { message: 'Default Message', button_ok_content: 'Ok', title: null, escape: true },
@@ -21,12 +29,15 @@ function veil( options = {} ) {
     const parameters = typeof options == 'string' ? { content: options } : options
     const { content, className, id, escape, veil_class } = { ...defaults_original.veil, ...defaults.veil, ...parameters }
 
+    inject_styles()
+
     // veil_class lets the modals built on top of veil keep their own root class (BasicModalsVeilAlert/Confirm/Prompt)
     // rather than a shared BasicModalsVeil — matching the pre-2.0.0 DOM where each modal had its own veil class
     const dialog = HTML( 'dialog', { className: veil_class || 'BasicModalsVeil' }, document.body )
 
+    // split so a multi-class string ("a b") works — classList.add() throws on tokens containing spaces
     if( className )
-        dialog.classList.add( className )
+        dialog.classList.add( ...className.split( /\s+/ ).filter( Boolean ) )
 
     if( id )
         dialog.id = id
@@ -187,8 +198,10 @@ function prompt( options = {} ) {
     button_cancel.onclick = () => close( 'cancel' )
 
     return closed.then( value => {
+        // the cancel button closes with 'cancel'; Escape closes with returnValue '' — reject with the reason so
+        // callers can tell them apart. Dismissal still rejects, so consumers must attach a .catch.
         if( value != 'accept' )
-            return Promise.reject()
+            return Promise.reject( value || 'escape' )
         // with custom inputs resolve an object { name: value }; otherwise the legacy single string
         if( ! inputs )
             return response.value
@@ -205,4 +218,6 @@ exports.confirm  = confirm
 exports.veil     = veil
 exports.defaults = defaults
 
-window.BasicModals = { prompt, alert, confirm, veil, defaults }
+// expose the browser global only when there's a window (guarded so SSR / plain-Node imports don't crash)
+if( typeof window !== 'undefined' )
+    window.BasicModals = { prompt, alert, confirm, veil, defaults }
